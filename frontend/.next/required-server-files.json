@@ -292,7 +292,7 @@
     "turbopack": {
       "root": "C:\\Users\\SSAFY\\Desktop\\git\\2025softbank-hackathon\\frontend"
     },
-    "distDirRoot": "./dist"
+    "distDirRoot": ".next"
   },
   "appDir": "C:\\Users\\SSAFY\\Desktop\\git\\2025softbank-hackathon\\frontend",
   "relativeAppDir": "",
