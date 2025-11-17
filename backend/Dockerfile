@@ -15,8 +15,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# 기본 settings 사용 (production.py 없으므로)
-ENV DJANGO_SETTINGS_MODULE=config.settings
 
 # collectstatic 는 추후 static 설정 후 활성화
 # RUN python manage.py collectstatic --noinput
