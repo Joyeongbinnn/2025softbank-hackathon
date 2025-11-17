@@ -6,7 +6,6 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# 필요시 build deps 추가
 RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -16,11 +15,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# 환경변수로 분리 가능
-ENV DJANGO_SETTINGS_MODULE=config.settings.production
+# 기본 settings 사용 (production.py 없으므로)
+ENV DJANGO_SETTINGS_MODULE=config.settings
 
-# collectstatic (static 설정해뒀다는 가정)
-RUN python manage.py collectstatic --noinput || true
+# collectstatic 는 추후 static 설정 후 활성화
+# RUN python manage.py collectstatic --noinput
 
 EXPOSE 8080
 
