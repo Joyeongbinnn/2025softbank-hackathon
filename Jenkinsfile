@@ -17,23 +17,12 @@ pipeline {
             }
         }
 
-        stage('Build backend') {
+        stage('Build images') {
             steps {
                 dir("${INFRA_DIR}") {
                     sh '''
-                      echo "[BUILD] backend Docker image"
-                      docker compose build backend
-                    '''
-                }
-            }
-        }
-
-        stage('Build frontend') {
-            steps {
-                dir("${INFRA_DIR}") {
-                    sh '''
-                      echo "[BUILD] frontend Docker image"
-                      docker compose build frontend
+                      echo "[BUILD] backend & frontend Docker images"
+                      docker compose build backend frontend
                     '''
                 }
             }
@@ -43,8 +32,11 @@ pipeline {
             steps {
                 dir("${INFRA_DIR}") {
                     sh '''
-                      echo "[DEPLOY] backend & frontend containers"
-                      docker compose up -d backend frontend
+                      echo "[DEPLOY] recreate backend & frontend containers"
+                      docker compose up -d --no-deps --force-recreate backend frontend
+
+                      echo "[RESTART] nginx to refresh routes/upstreams"
+                      docker compose restart nginx
 
                       echo "[CLEAN] unused images"
                       docker image prune -f
