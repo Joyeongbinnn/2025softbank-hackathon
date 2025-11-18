@@ -1,27 +1,35 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { mockEnvironments } from "@/utils/mockData";
-import { Server, DollarSign, Settings, Bell } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useLanguage } from "@/lib/LanguageContext";
-import { t } from "@/lib/i18n";
-import EnvironmentCard from "@/components/dashboard/EnvironmentCard";
-import DeploymentHistory from "@/components/dashboard/DeploymentHistory";
+import { Link } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Settings, Bell, Plus, Eye } from "lucide-react"
+import { useLanguage } from "@/lib/LanguageContext"
+import { t } from "@/lib/i18n"
+import { mockServices, mockDeploymentHistory, calculateDashboardStats, mockDeployments } from "@/utils/mockData"
+import EnvironmentCard from "@/components/dashboard/EnvironmentCard"
+import DeploymentHistory from "@/components/dashboard/DeploymentHistory"
+import SummaryCard from "@/components/dashboard/SummaryCard"
 
 const Dashboard = () => {
-  const { language } = useLanguage();
+  const { language } = useLanguage()
+  const dashboardStats = calculateDashboardStats(mockServices)
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{t(language, 'myTeamService')}</h1>
-            <Badge variant="default" className="bg-gradient-to-r from-primary to-accent">
-              {t(language, 'deploying')}
-            </Badge>
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight">{t(language, 'dashboard')}</h1>
+            <p className="text-muted-foreground">
+              {language === 'ko'
+                ? '모든 서비스와 배포 현황을 한 눈에 확인하세요'
+                : language === 'en'
+                  ? 'Monitor all services and deployments'
+                  : 'すべてのサービスとデプロイメントを監視'}
+            </p>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Link to="/settings">
               <Button variant="outline" size="sm">
@@ -35,71 +43,140 @@ const Dashboard = () => {
             </Button>
           </div>
         </div>
-        
+
+        {/* Summary Stats */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">{t(language, 'dashboardSummary')}</h2>
+          <SummaryCard stats={dashboardStats} />
+        </div>
+
+        {/* Main Content Grid */}
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
-            <div>
-              <h2 className="text-xl font-semibold mb-4">{t(language, 'environment')}</h2>
+            {/* Active Environments */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">{t(language, 'environment')}</h2>
+                <Badge variant="secondary" className="bg-success/20 text-success">
+                  {dashboardStats.activeEnvironments} {t(language, 'activeEnvironments')}
+                </Badge>
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
-                {mockEnvironments.map((env) => (
-                  <EnvironmentCard key={env.id} environment={env} />
+                {mockServices.map((service) => (
+                  <div key={service.id} className="space-y-3">
+                    <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-border/50 bg-muted/30">
+                      <h3 className="font-semibold text-sm">{service.name}</h3>
+                      <Badge variant="outline" className="text-xs">
+                        {service.environments.length} {t(language, 'environment')}
+                      </Badge>
+                    </div>
+                    <div className="grid gap-2">
+                      {service.environments.slice(0, 2).map((env) => (
+                        <EnvironmentCard
+                          key={env.id}
+                          environment={env}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
-            
-            <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="rounded-lg bg-primary/10 p-3">
-                    <Server className="h-6 w-6 text-primary" />
+
+            {/* Recent Deployments Table */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">{t(language, 'recentDeployments')}</h2>
+              <Card>
+                <CardContent className="p-0">
+                  <div className="divide-y">
+                    {mockDeployments.slice(0, 5).map((deployment) => {
+                      const service = mockServices.find(s => s.id === deployment.serviceId)
+                      const statusBgColor =
+                        deployment.status === 'success'
+                          ? 'bg-success/10'
+                          : deployment.status === 'failed'
+                            ? 'bg-destructive/10'
+                            : 'bg-warning/10'
+                      const statusTextColor =
+                        deployment.status === 'success'
+                          ? 'text-success'
+                          : deployment.status === 'failed'
+                            ? 'text-destructive'
+                            : 'text-warning'
+
+                      return (
+                        <div key={deployment.id} className="p-4 hover:bg-muted/50 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div className="min-w-0 flex-1 space-y-1">
+                              <div className="flex items-center gap-3">
+                                <span className="font-medium truncate">{service?.name}</span>
+                                <Badge variant="outline" className="text-xs">
+                                  {deployment.branch}
+                                </Badge>
+                                <Badge
+                                  className={`text-xs ${statusBgColor} ${statusTextColor}`}
+                                  variant="outline"
+                                >
+                                  {deployment.status === 'success'
+                                    ? t(language, 'success')
+                                    : deployment.status === 'failed'
+                                      ? t(language, 'failed')
+                                      : t(language, 'running')}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">{deployment.commitMessage}</p>
+                            </div>
+                            <div className="text-right space-y-1 ml-4">
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(deployment.startTime).toLocaleString(language === 'ko' ? 'ko-KR' : language === 'en' ? 'en-US' : 'ja-JP')}
+                              </p>
+                              {deployment.duration && (
+                                <p className="text-xs font-medium">
+                                  {Math.round(deployment.duration / 60)}m
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-2">{language === 'ko' ? '비용/인프라 요약' : language === 'en' ? 'Cost/Infrastructure Summary' : 'コスト/インフラストラクチャサマリー'}</h3>
-                    <div className="space-y-1 text-sm">
-                      <p className="flex items-center justify-between">
-                        <span className="text-muted-foreground">{language === 'ko' ? 'EC2 인스턴스' : language === 'en' ? 'EC2 Instances' : 'EC2インスタンス'}</span>
-                        <span className="font-medium">2</span>
-                      </p>
-                      <p className="flex items-center justify-between">
-                        <span className="text-muted-foreground">{language === 'ko' ? 'RDS 데이터베이스' : language === 'en' ? 'RDS Database' : 'RDSデータベース'}</span>
-                        <span className="font-medium">1</span>
-                      </p>
-                      <p className="flex items-center justify-between">
-                        <span className="text-muted-foreground">{language === 'ko' ? '예상 월 비용' : language === 'en' ? 'Estimated Monthly Cost' : '推定月額費用'}</span>
-                        <span className="font-bold text-primary flex items-center">
-                          <DollarSign className="h-4 w-4" />
-                          {language === 'ko' ? '250,000원' : language === 'en' ? '$250' : '¥25000'}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-accent/20 bg-accent/5">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="text-4xl animate-bounce-gentle">😊</div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1">{language === 'ko' ? '오늘의 배포 스트레스 지수' : language === 'en' ? "Today's Deployment Stress Index" : '本日のデプロイストレス指数'}</h3>
-                    <p className="text-3xl font-bold text-success mb-2">12%</p>
-                    <p className="text-sm text-muted-foreground">
-                      {language === 'ko' ? '매우 평온한 상태입니다. 훌륭해요! 🎉' : language === 'en' ? 'Very calm state. Excellent! 🎉' : '非常に落ち着いた状態です。素晴らしい! 🎉'}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-          
+
+          {/* Right Sidebar */}
           <div className="space-y-6">
+            {/* Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">{t(language, 'actions')}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Link to="/new-project" className="w-full">
+                  <Button className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90">
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t(language, 'createNewService')}
+                  </Button>
+                </Link>
+                <Link to="/pipeline" className="w-full">
+                  <Button variant="outline" className="w-full">
+                    <Eye className="h-4 w-4 mr-2" />
+                    {t(language, 'viewAllPipelines')}
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Deployment History */}
             <DeploymentHistory />
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard

@@ -1,37 +1,67 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Rocket, Zap, Shield, GitBranch, Server, Lock } from "lucide-react";
-import { useLanguage } from "@/lib/LanguageContext";
-import { t } from "@/lib/i18n";
+import { Link } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Rocket, Zap, Users, Lock, ArrowRight, GitBranch } from "lucide-react"
+import { useLanguage } from "@/lib/LanguageContext"
+import { t } from "@/lib/i18n"
 
 const Landing = () => {
-  const { language } = useLanguage();
+  const { language } = useLanguage()
+
+  const features = [
+    {
+      icon: Rocket,
+      titleKey: 'oneclick_deploy',
+      descKey: 'oneclick_desc',
+      color: 'from-primary/20 to-primary/10',
+      iconColor: 'text-primary',
+    },
+    {
+      icon: Users,
+      titleKey: 'ec2_setup',
+      descKey: 'ec2_desc',
+      color: 'from-accent/20 to-accent/10',
+      iconColor: 'text-accent',
+    },
+    {
+      icon: Zap,
+      titleKey: 'https_setup',
+      descKey: 'https_desc',
+      color: 'from-success/20 to-success/10',
+      iconColor: 'text-success',
+    },
+  ]
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted">
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
+      <section className="container mx-auto px-4 py-16 sm:py-24 text-center">
         <div className="mx-auto max-w-4xl space-y-8 animate-fade-in">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-            <Rocket className="h-4 w-4" />
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary border border-primary/20">
+            <GitBranch className="h-4 w-4" />
             {t(language, 'startup_platform')}
           </div>
-          
-          <h1 className="text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
-            {t(language, 'hero_title')}
-            <br />
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {t(language, 'hero_title_accent')}
-            </span>
-          </h1>
-          
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground whitespace-pre-line">
-            {t(language, 'hero_subtitle')}
-          </p>
-          
-          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+
+          {/* Main Headline */}
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
+              {t(language, 'hero_title')}
+              <br />
+              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                {t(language, 'hero_title_accent')}
+              </span>
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+              {t(language, 'hero_subtitle')}
+            </p>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:justify-center justify-center pt-4">
             <Link to="/new-project">
-              <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg">
+              <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg hover:shadow-xl transition-all">
                 <Rocket className="mr-2 h-5 w-5" />
                 {t(language, 'get_started')}
               </Button>
@@ -39,118 +69,106 @@ const Landing = () => {
             <Link to="/dashboard">
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 {t(language, 'demo_view')}
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
         </div>
       </section>
-      
+
       {/* Features Section */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="grid gap-8 md:grid-cols-3">
-          <Card className="border-2 transition-all hover:shadow-lg hover:-translate-y-1">
-            <CardContent className="p-6 space-y-4">
-              <div className="rounded-lg bg-primary/10 w-12 h-12 flex items-center justify-center">
-                <Zap className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold">{t(language, 'oneclick_deploy')}</h3>
-              <p className="text-muted-foreground">
-                {t(language, 'oneclick_desc')}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-2 transition-all hover:shadow-lg hover:-translate-y-1">
-            <CardContent className="p-6 space-y-4">
-              <div className="rounded-lg bg-accent/10 w-12 h-12 flex items-center justify-center">
-                <Server className="h-6 w-6 text-accent" />
-              </div>
-              <h3 className="text-xl font-bold">{t(language, 'ec2_setup')}</h3>
-              <p className="text-muted-foreground">
-                {t(language, 'ec2_desc')}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-2 transition-all hover:shadow-lg hover:-translate-y-1">
-            <CardContent className="p-6 space-y-4">
-              <div className="rounded-lg bg-success/10 w-12 h-12 flex items-center justify-center">
-                <Lock className="h-6 w-6 text-success" />
-              </div>
-              <h3 className="text-xl font-bold">{t(language, 'https_setup')}</h3>
-              <p className="text-muted-foreground">
-                {t(language, 'https_desc')}
-              </p>
-            </CardContent>
-          </Card>
+      <section className="container mx-auto px-4 py-16 sm:py-24">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-2">
+            {language === 'ko' ? '핵심 기능' : language === 'en' ? 'Key Features' : 'キー機能'}
+          </h2>
+          <p className="text-muted-foreground">
+            {language === 'ko' ? 'Yoitang Auto Deploy로 DevOps를 간단하게' : language === 'en' ? 'Simplify your DevOps with Yoitang Auto Deploy' : 'Yoitang Auto Deployでdevopsを簡素化'}
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          {features.map((feature) => {
+            const Icon = feature.icon
+            return (
+              <Card key={feature.titleKey} className="border-2 transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden">
+                <CardContent className="p-8 space-y-4">
+                  <div className={`rounded-lg bg-gradient-to-br ${feature.color} w-14 h-14 flex items-center justify-center`}>
+                    <Icon className={`h-7 w-7 ${feature.iconColor}`} />
+                  </div>
+                  <h3 className="text-xl font-bold">{t(language, feature.titleKey)}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {t(language, feature.descKey)}
+                  </p>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       </section>
-      
-      {/* How It Works Section */}
-      <section className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold text-center mb-12">{language === 'ko' ? '3단계로 완성되는 배포' : language === 'en' ? '3 Steps to Complete Deployment' : '3ステップで完成するデプロイ'}</h2>
-        
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="flex items-start gap-6">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg">
-              1
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold mb-2">{language === 'ko' ? 'Git 주소 입력' : language === 'en' ? 'Enter Git Address' : 'Gitアドレスを入力'}</h3>
-              <p className="text-muted-foreground">
-                {language === 'ko' ? 'GitHub 레포지토리 URL과 배포할 브랜치를 선택하세요.' : language === 'en' ? 'Select the GitHub repository URL and branch to deploy.' : 'GitHubリポジトリのURLとデプロイするブランチを選択します。'}
-              </p>
-            </div>
-            <GitBranch className="h-12 w-12 text-primary/20" />
-          </div>
-          
-          <div className="flex items-start gap-6">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-bold text-lg">
-              2
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold mb-2">{language === 'ko' ? 'AWS 정보 입력' : language === 'en' ? 'Enter AWS Information' : 'AWS情報を入力'}</h3>
-              <p className="text-muted-foreground">
-                {language === 'ko' ? '리전과 EC2 인스턴스 개수를 설정하세요. 나머지는 자동입니다.' : language === 'en' ? 'Set the region and number of EC2 instances. The rest is automatic.' : 'リージョンとEC2インスタンスの数を設定します。残りは自動です。'}
-              </p>
-            </div>
-            <Server className="h-12 w-12 text-accent/20" />
-          </div>
-          
-          <div className="flex items-start gap-6">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-success text-success-foreground flex items-center justify-center font-bold text-lg">
-              3
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold mb-2">{language === 'ko' ? '배포 완료 🎉' : language === 'en' ? 'Deployment Complete 🎉' : 'デプロイ完了 🎉'}</h3>
-              <p className="text-muted-foreground">
-                {language === 'ko' ? 'CI/CD 파이프라인이 자동으로 구축되고 서비스가 배포됩니다.' : language === 'en' ? 'CI/CD pipeline is automatically built and service is deployed.' : 'CI/CDパイプラインが自動的に構築され、サービスがデプロイされます。'}
-              </p>
-            </div>
-            <Shield className="h-12 w-12 text-success/20" />
+
+      {/* Pipeline Flow Section */}
+      <section className="container mx-auto px-4 py-16 sm:py-24">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-2">
+            {language === 'ko' ? '자동 배포 파이프라인' : language === 'en' ? 'Automated Deployment Pipeline' : '自動デプロイメント・パイプライン'}
+          </h2>
+          <p className="text-muted-foreground">
+            {language === 'ko' ? 'Git 커밋부터 k3s 배포까지 모든 것이 자동화됩니다' : language === 'en' ? 'From Git commit to k3s deployment - fully automated' : 'Gitコミットからk3sデプロイまで完全自動化'}
+          </p>
+        </div>
+
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 items-stretch">
+            {[
+              { step: 1, label: language === 'ko' ? 'Git URL' : language === 'en' ? 'Git URL' : 'Git URL' },
+              { step: 2, label: language === 'ko' ? '빌드' : language === 'en' ? 'Build' : 'ビルド' },
+              { step: 3, label: language === 'ko' ? 'Docker' : language === 'en' ? 'Docker' : 'Docker' },
+              { step: 4, label: language === 'ko' ? 'k3s' : language === 'en' ? 'k3s' : 'k3s' },
+              { step: 5, label: language === 'ko' ? 'HTTPS' : language === 'en' ? 'HTTPS' : 'HTTPS' },
+            ].map((item, idx) => (
+              <div key={idx} className="space-y-2">
+                <div className="bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg p-4 text-center border border-primary/20 hover:border-primary/50 transition-colors">
+                  <div className="text-2xl font-bold text-primary mb-2">{item.step}</div>
+                  <div className="text-sm font-medium">{item.label}</div>
+                </div>
+                {idx < 4 && (
+                  <div className="flex justify-center">
+                    <ArrowRight className="h-5 w-5 text-muted-foreground rotate-90 sm:rotate-0" />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
-      
+
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-20">
-        <Card className="border-2 bg-gradient-to-br from-primary/5 to-accent/5">
-          <CardContent className="p-12 text-center space-y-6">
-            <h2 className="text-3xl font-bold">{language === 'ko' ? '지금 바로 시작해보세요' : language === 'en' ? 'Get Started Now' : '今すぐ始めましょう'}</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              {language === 'ko' ? '복잡한 인프라 설정 없이, 5분만에 첫 배포를 경험해보세요.' : language === 'en' ? 'Experience your first deployment in just 5 minutes without complex infrastructure setup.' : '複雑なインフラ設定なしで、5分で最初のデプロイを体験してください。'}
-            </p>
+      <section className="container mx-auto px-4 py-16 sm:py-24">
+        <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl p-8 sm:p-12 border border-primary/20 text-center space-y-6">
+          <h2 className="text-3xl sm:text-4xl font-bold">
+            {language === 'ko' ? '지금 바로 시작하세요' : language === 'en' ? 'Ready to Get Started?' : '今すぐ始める'}
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            {language === 'ko' ? 'Yoitang Auto Deploy와 함께 몇 분 만에 자동 배포를 시작하세요.' : language === 'en' ? 'Start your automated deployment journey in minutes with Yoitang Auto Deploy.' : 'Yoitang Auto Deployで数分で自動デプロイメントを開始'}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Link to="/new-project">
-              <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
+              <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg w-full sm:w-auto">
                 <Rocket className="mr-2 h-5 w-5" />
-                {language === 'ko' ? '무료로 시작하기' : language === 'en' ? 'Start for Free' : '無料で始める'}
+                {t(language, 'createNewService')}
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+            <Link to="/dashboard">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                {t(language, 'viewAllPipelines')}
+              </Button>
+            </Link>
+          </div>
+        </div>
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default Landing;
+export default Landing
