@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${PREFIX}-ing
+  namespace: ${PREFIX}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${PREFIX}.yoitang.cloud
+    secretName: ${PREFIX}-tls
+  rules:
+  - host: ${PREFIX}.yoitang.cloud
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ${PREFIX}-frontend-svc
+            port:
+              number: 80

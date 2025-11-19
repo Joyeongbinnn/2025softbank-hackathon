@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${PREFIX}-frontend-deploy
+  namespace: ${PREFIX}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${PREFIX}-frontend
+  template:
+    metadata:
+      labels:
+        app: ${PREFIX}-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ${FRONTEND_IMAGE}             # Jenkins에서 빌드한 이미지
+        ports:
+        - containerPort: 80

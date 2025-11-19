@@ -1,0 +1,194 @@
+pipeline {
+  agent any
+
+  environment {
+    // docker-compose 에서 주입한 값 사용
+    AWS_REGION     = "${env.AWS_REGION}"
+    ECR_ACCOUNT_ID = "${env.ECR_ACCOUNT_ID}"
+    ECR_REGISTRY   = "${ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+    ECR_REPO       = "yoitang-frontend"
+
+    KANIKO_IMAGE   = "gcr.io/kaniko-project/executor:v1.24.0"
+    DOCKER_CONFIG  = "/var/jenkins_home/.docker"
+
+    TRIVY_SEVERITY       = "CRITICAL,HIGH"
+    TRIVY_IGNORE_UNFIXED = "true"
+  }
+
+  parameters {
+    string(name: 'PREFIX',   description: '도메인 prefix (예: team1)', trim: true)
+    string(name: 'GIT_REPO', description: '프론트엔드 Git 저장소 URL', trim: true)
+    string(name: 'BRANCH',   defaultValue: 'main', description: '배포 브랜치', trim: true)
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        echo "[Checkout] ${params.GIT_REPO} (${params.BRANCH})"
+        git branch: params.BRANCH, url: params.GIT_REPO
+      }
+    }
+
+    stage('Install deps & ESLint') {
+      steps {
+        sh '''
+        if [ -f package.json ]; then
+          echo "[Node] package.json 발견 → npm ci 실행"
+          npm ci
+
+          if npx eslint --version >/dev/null 2>&1; then
+            echo "[ESLint] lint 실행"
+            npx eslint . || exit 1
+          else
+            echo "[ESLint] eslint 설정 없음 → 스킵"
+          fi
+        else
+          echo "[Node] package.json 없음 → Node 단계 스킵"
+        fi
+        '''
+      }
+    }
+
+    stage('Docker config for ECR (Kaniko용)') {
+      steps {
+        sh '''
+        mkdir -p ${DOCKER_CONFIG}
+        echo "[ECR] docker login 시작"
+        aws ecr get-login-password --region ${AWS_REGION} \
+          | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+
+        # docker login 결과를 Kaniko가 읽을 수 있게 복사
+        mkdir -p /root/.docker
+        cp -f /root/.docker/config.json ${DOCKER_CONFIG}/config.json || true
+        '''
+      }
+    }
+
+    stage('Build & Push with Kaniko') {
+      steps {
+        script {
+          def tag = "${params.PREFIX}-${env.BUILD_NUMBER}"
+          env.IMAGE_FULL = "${ECR_REGISTRY}/${ECR_REPO}:${tag}"
+        }
+
+        sh '''
+        echo "[Kaniko] 이미지 빌드 & 푸시 → ${IMAGE_FULL}"
+
+        docker run --rm \
+          -v ${WORKSPACE}:/workspace \
+          -v ${DOCKER_CONFIG}:/kaniko/.docker \
+          ${KANIKO_IMAGE} \
+            --context /workspace \
+            --dockerfile Dockerfile \
+            --destination ${IMAGE_FULL} \
+            --single-snapshot \
+            --cache=true \
+            --cache-repo=${ECR_REGISTRY}/${ECR_REPO}-cache
+        '''
+      }
+    }
+
+    stage('Trivy scan') {
+      steps {
+        sh '''
+        echo "[Trivy] 취약점 스캔 시작 → ${IMAGE_FULL}"
+        trivy image --severity ${TRIVY_SEVERITY} \
+                    --ignore-unfixed=${TRIVY_IGNORE_UNFIXED} \
+                    --exit-code 1 \
+                    ${IMAGE_FULL} || {
+          echo "[Trivy] CRITICAL/HIGH 취약점 발견 → 빌드 실패"
+          exit 1
+        }
+        '''
+      }
+    }
+
+    stage('Generate K8s manifests & Deploy') {
+      steps {
+        sh '''
+        set -e
+        echo "[K8s] 매니페스트 생성 시작 → prefix=${PREFIX}"
+
+        mkdir -p k8s/${PREFIX}
+
+        cat <<EOF > k8s/${PREFIX}/namespace.yaml
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: ${PREFIX}
+        EOF
+
+        cat <<EOF > k8s/${PREFIX}/deployment.yaml
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ${PREFIX}-frontend-deploy
+          namespace: ${PREFIX}
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: ${PREFIX}-frontend
+          template:
+            metadata:
+              labels:
+                app: ${PREFIX}-frontend
+            spec:
+              containers:
+              - name: frontend
+                image: ${IMAGE_FULL}
+                ports:
+                - containerPort: 80
+        EOF
+
+        cat <<EOF > k8s/${PREFIX}/service.yaml
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: ${PREFIX}-frontend-svc
+          namespace: ${PREFIX}
+        spec:
+          selector:
+            app: ${PREFIX}-frontend
+          ports:
+          - port: 80
+            targetPort: 80
+        EOF
+
+        cat <<EOF > k8s/${PREFIX}/ingress.yaml
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: ${PREFIX}-ing
+          namespace: ${PREFIX}
+          annotations:
+            nginx.ingress.kubernetes.io/ssl-redirect: "true"
+            cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        spec:
+          ingressClassName: nginx
+          tls:
+          - hosts:
+            - ${PREFIX}.yoitang.cloud
+            secretName: ${PREFIX}-tls
+          rules:
+          - host: ${PREFIX}.yoitang.cloud
+            http:
+              paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: ${PREFIX}-frontend-svc
+                    port:
+                      number: 80
+        EOF
+
+        echo "[kubectl] apply 시작"
+        kubectl apply -f k8s/${PREFIX}/
+        kubectl get pods -n ${PREFIX}
+        '''
+      }
+    }
+  }
+}
