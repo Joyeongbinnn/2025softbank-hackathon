@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from api import main
 from starlette.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 origins = ['*']
 
