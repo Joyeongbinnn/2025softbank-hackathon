@@ -3,4 +3,4 @@ uvicorn
 python-dotenv
 pydantic
 boto3
-
+psycopg2-binary
