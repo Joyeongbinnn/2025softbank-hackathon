@@ -158,39 +158,39 @@ EOF
 
     // 5) Kaniko로 빌드 & 푸시 (context = app/frontend)
     stage('Build & Push with Kaniko') {
-      steps {
-        script {
-          def tag = "${params.PREFIX}-${env.BUILD_NUMBER}"
-          env.IMAGE_FULL = "${ECR_REGISTRY}/${ECR_REPO}:${tag}"
-        }
-
-        dir('app/frontend') {
-          sh '''
-          if [ ! -f Dockerfile ]; then
-            echo "[ERROR] frontend 디렉터리에 Dockerfile 이 없습니다."
-            pwd
-            ls -al
-            exit 1
-          fi
-
-          echo "[Kaniko] 이미지 빌드 & 푸시 → ${IMAGE_FULL}"
-          echo "[Kaniko] HOST PWD=$(pwd)"
-          ls -al
-
-          docker run --rm \
-            -v $(pwd):/workspace \
-            -v ${DOCKER_CONFIG}:/kaniko/.docker \
-            ${KANIKO_IMAGE} \
-              --context /workspace \
-              --dockerfile Dockerfile \
-              --destination ${IMAGE_FULL} \
-              --single-snapshot \
-              --cache=true \
-              --cache-repo=${ECR_REGISTRY}/${ECR_REPO}-cache
-          '''
-        }
-      }
+  steps {
+    script {
+      def tag = "${params.PREFIX}-${env.BUILD_NUMBER}"
+      env.IMAGE_FULL = "${ECR_REGISTRY}/${ECR_REPO}:${tag}"
     }
+
+    dir('app/frontend') {
+      sh '''
+      if [ ! -f Dockerfile ]; then
+        echo "[ERROR] frontend 디렉터리에 Dockerfile 이 없습니다."
+        pwd
+        ls -al
+        exit 1
+      fi
+
+      echo "[Kaniko] 이미지 빌드 & 푸시 → ${IMAGE_FULL}"
+      echo "[Kaniko] HOST PWD=$(pwd)"
+      ls -al
+
+      docker run --rm \
+        -v $(pwd):/workspace \
+        -v ${DOCKER_CONFIG}:/kaniko/.docker \
+        ${KANIKO_IMAGE} \
+          --context dir:///workspace \
+          --destination ${IMAGE_FULL} \
+          --single-snapshot \
+          --cache=true \
+          --cache-repo=${ECR_REGISTRY}/${ECR_REPO}-cache
+      '''
+    }
+  }
+}
+
 
     // 6) Trivy 이미지 스캔
     stage('Trivy Scan') {
