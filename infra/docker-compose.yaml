@@ -20,17 +20,17 @@ services:
     container_name: yoitang-backend
     env_file:
       - ./backend.env
-    environment:
-      # DB 연결정보 (backend.env 에서 override 가능)
-      DB_HOST: 
-      DB_PORT: 
-      DB_NAME: 
-      DB_USER: 
-      DB_PASSWORD: 
-      JENKINS_URL:
-      JENKINS_USER:
-      JENKINS_TOKEN:
-      JENKINS_JOB_NAME:
+#    environment:
+#      # DB 연결정보 (backend.env 에서 override 가능)
+#      DB_HOST: 
+#      DB_PORT: 
+#      DB_NAME: 
+#      DB_USER: 
+#      DB_PASSWORD: 
+#      JENKINS_URL:
+#      JENKINS_USER:
+#      JENKINS_TOKEN:
+#      JENKINS_JOB_NAME:
     depends_on:
       - db
     ports:
