@@ -178,10 +178,6 @@ EOF
           echo "[Kaniko] HOST PWD=$(pwd)"
           ls -al
 
-          docker run --rm \
-            -v $(pwd):/workspace \
-            -v ${DOCKER_CONFIG}:/kaniko/.docker \
-            -w /workspace \
             docker run --rm \
             -v $(pwd):/workspace \
             -v ${DOCKER_CONFIG}:/kaniko/.docker \
