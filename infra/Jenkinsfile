@@ -136,34 +136,36 @@ EOF
     }
 
     stage('Build & Push with Kaniko') {
-      steps {
-        script {
-          def tag = "${params.PREFIX}-${env.BUILD_NUMBER}"
-          env.IMAGE_FULL = "${ECR_REGISTRY}/${ECR_REPO}:${tag}"
-        }
-
-        sh '''
-        if [ ! -f Dockerfile ]; then
-          echo "[ERROR] Dockerfile 이 없습니다."
-          echo "자동배포를 사용하려면 Dockerfile을 제공하거나 플랫폼 Dockerfile 옵션을 사용해야 합니다."
-          exit 1
-        fi
-
-        echo "[Kaniko] 이미지 빌드 & 푸시 → ${IMAGE_FULL}"
-
-        docker run --rm \
-          -v ${WORKSPACE}:/workspace \
-          -v ${DOCKER_CONFIG}:/kaniko/.docker \
-          ${KANIKO_IMAGE} \
-            --context /workspace \
-            --dockerfile /workspace/Dockerfile \
-            --destination ${IMAGE_FULL} \
-            --single-snapshot \
-            --cache=true \
-            --cache-repo=${ECR_REGISTRY}/${ECR_REPO}-cache
-        '''
-      }
+  steps {
+    script {
+      def tag = "${params.PREFIX}-${env.BUILD_NUMBER}"
+      env.IMAGE_FULL = "${ECR_REGISTRY}/${ECR_REPO}:${tag}"
     }
+
+    sh '''
+    if [ ! -f Dockerfile ]; then
+      echo "[ERROR] Dockerfile 이 없습니다."
+      echo "자동배포를 사용하려면 Dockerfile을 제공하거나 플랫폼 Dockerfile 옵션을 사용해야 합니다."
+      exit 1
+    fi
+
+    echo "[Kaniko] 이미지 빌드 & 푸시 → ${IMAGE_FULL}"
+
+    docker run --rm \
+      -v ${WORKSPACE}:/workspace \
+      -v ${DOCKER_CONFIG}:/kaniko/.docker \
+      -w /workspace \
+      ${KANIKO_IMAGE} \
+        --context . \
+        --dockerfile Dockerfile \
+        --destination ${IMAGE_FULL} \
+        --single-snapshot \
+        --cache=true \
+        --cache-repo=${ECR_REGISTRY}/${ECR_REPO}-cache
+    '''
+  }
+}
+
 
     stage('Trivy scan') {
       steps {
