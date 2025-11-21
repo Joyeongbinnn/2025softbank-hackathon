@@ -2,13 +2,13 @@ pipeline {
   agent any
 
   environment {
-    # === 공통 환경변수 (docker-compose로 주입) ===
+    //=== 공통 환경변수 (docker-compose로 주입) ===
     AWS_REGION     = "${env.AWS_REGION}"
     ECR_ACCOUNT_ID = "${env.ECR_ACCOUNT_ID}"
     ECR_REGISTRY   = "${ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
     ECR_REPO       = "yoitang-frontend"
 
-    # Kaniko 이미지 & Docker config
+    //# Kaniko 이미지 & Docker config
     KANIKO_IMAGE   = "gcr.io/kaniko-project/executor:v1.24.0"
     DOCKER_CONFIG  = "/var/jenkins_home/.docker"
 
