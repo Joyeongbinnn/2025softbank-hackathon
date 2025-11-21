@@ -156,7 +156,7 @@ EOF
           -v ${DOCKER_CONFIG}:/kaniko/.docker \
           ${KANIKO_IMAGE} \
             --context /workspace \
-            --dockerfile Dockerfile \
+            --dockerfile /workspace/Dockerfile \
             --destination ${IMAGE_FULL} \
             --single-snapshot \
             --cache=true \
