@@ -61,34 +61,45 @@ pipeline {
     }
 
     // 2) frontend/ 기준으로 npm ci + eslint
-    stage('Install deps & ESLint') {
-      steps {
-        dir('app/frontend') {
-          sh '''
-          if [ ! -d . ]; then
-            echo "[ERROR] frontend 디렉터리가 없습니다. 레포 구조를 확인하세요."
-            exit 1
-          fi
+stage('Install deps & ESLint') {
+  steps {
+    dir('app/frontend') {
+      sh '''
+      if [ ! -d . ]; then
+        echo "[ERROR] frontend 디렉터리가 없습니다. 레포 구조를 확인하세요."
+        exit 1
+      fi
 
-          if [ -f package.json ]; then
-            echo "[Node] package.json 발견 → npm ci 실행"
-            npm ci
+      if [ -f package.json ]; then
+        echo "[Node] package.json 발견"
 
-            if npx eslint --version >/dev/null 2>&1; then
-              echo "[ESLint] lint 실행"
-              npx eslint . || exit 1
-            else
-              echo "[ESLint] eslint 설정 없음 → 스킵"
-            fi
-          else
-            echo "[ERROR] frontend 디렉터리에 package.json 이 없습니다."
-            ls -al
-            exit 1
+        if [ -f package-lock.json ]; then
+          echo "[Node] package-lock.json 발견 → npm ci 시도"
+          if ! npm ci; then
+            echo "[WARN] npm ci 실패 → npm install 로 폴백"
+            npm install
           fi
-          '''
-        }
-      }
+        else
+          echo "[Node] package-lock.json 없음 → npm install 실행"
+          npm install
+        fi
+
+        if npx eslint --version >/dev/null 2>&1; then
+          echo "[ESLint] lint 실행"
+          npx eslint . || exit 1
+        else
+          echo "[ESLint] eslint 설정 없음 → 스킵"
+        fi
+      else
+        echo "[ERROR] frontend 디렉터리에 package.json 이 없습니다."
+        ls -al
+        exit 1
+      fi
+      '''
     }
+  }
+}
+
 
     // 3) ECR 로그인 (Kaniko에서 쓸 도커 config)
     stage('ECR Login (Kaniko용)') {
