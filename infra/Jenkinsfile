@@ -135,7 +135,7 @@ EOF
       }
     }
 
-    stage('Build & Push with Kaniko') {
+stage('Build & Push with Kaniko') {
   steps {
     script {
       def tag = "${params.PREFIX}-${env.BUILD_NUMBER}"
@@ -154,10 +154,8 @@ EOF
     docker run --rm \
       -v ${WORKSPACE}:/workspace \
       -v ${DOCKER_CONFIG}:/kaniko/.docker \
-      -w /workspace \
       ${KANIKO_IMAGE} \
-        --context . \
-        --dockerfile Dockerfile \
+        --context dir:///workspace \
         --destination ${IMAGE_FULL} \
         --single-snapshot \
         --cache=true \
@@ -165,6 +163,7 @@ EOF
     '''
   }
 }
+
 
 
     stage('Trivy scan') {
