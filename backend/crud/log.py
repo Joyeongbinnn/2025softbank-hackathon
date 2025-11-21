@@ -11,5 +11,5 @@ def create_log(db: Session, log_data: LogCreate) -> Log:
     return new_log
 
 # 로그 정보 조회
-def get_log(db: Session, deployment_id: int) -> Log:
-    return db.query(Log).filter(Log.deployment_id == deployment_id).first()
+def get_log(db: Session, deploy_id: int) -> Log:
+    return db.query(Log).filter(Log.deploy_id == deploy_id).first()

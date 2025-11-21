@@ -6,7 +6,7 @@ class Log(Base):
     __tablename__ = "logs"
 
     log_id = Column(BigInteger, primary_key=True, autoincrement=True, nullable=False)
-    deployment_id = Column(BigInteger, ForeignKey("deployments.deployment_id"), nullable=False)
+    deploy_id = Column(BigInteger, ForeignKey("deploys.deploy_id"), nullable=False)
     build_log = Column(Text, nullable=True)
     deploy_log = Column(Text, nullable=True)
     application_log = Column(Text, nullable=True)
