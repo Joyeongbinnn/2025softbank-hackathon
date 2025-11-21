@@ -10,12 +10,11 @@ router = APIRouter()
 async def deploy(req: DeployRequest):
     """
     유저 입력:
-      - prefix   : team1
-      - git_repo : https://github.com/...
-      - branch   : main
-
-    동작:
-      - JenkinsClient로 yoitang-autodeploy Job 실행
+      - prefix            : team1
+      - git_repo          : https://github.com/...
+      - branch            : main
+      - use_repo_dockerfile: bool (optional, default=false)
+      - frontend_stack    : react-vite (optional)
     """
     try:
         jenkins = JenkinsClient()
@@ -30,6 +29,8 @@ async def deploy(req: DeployRequest):
             prefix=req.prefix,
             git_repo=str(req.git_repo),
             branch=req.branch,
+            use_repo_dockerfile=req.use_repo_dockerfile,
+            frontend_stack=req.frontend_stack,
         )
     except Exception as e:
         raise HTTPException(

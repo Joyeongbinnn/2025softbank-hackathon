@@ -22,26 +22,25 @@ class JenkinsClient:
         if not all([self.base_url, self.username, self.token]):
             raise RuntimeError("JENKINS_URL / JENKINS_USER / JENKINS_TOKEN 환경변수가 필요합니다.")
 
-    def trigger_build(self, prefix: str, git_repo: str, branch: str = "main") -> int:
-        """
-        Jenkins 파이프라인 실행 (파라미터 빌드).
-        성공 시 queue_id 리턴 (못 읽으면 -1).
-        """
+    def trigger_build(
+        self,
+        prefix: str,
+        git_repo: str,
+        branch: str = "main",
+        use_repo_dockerfile: bool = False,
+        frontend_stack: str = "react-vite",
+    ) -> int:
         url = f"{self.base_url}/job/{self.job_name}/buildWithParameters"
 
         data = {
             "PREFIX": prefix,
             "GIT_REPO": git_repo,
             "BRANCH": branch,
+            "USE_REPO_DOCKERFILE": str(use_repo_dockerfile).lower(),  # true/False
+            "FRONTEND_STACK": frontend_stack,
         }
 
-        resp = requests.post(
-            url,
-            auth=HTTPBasicAuth(self.username, self.token),
-            data=data,
-            timeout=10
-        )
-
+        resp = requests.post(url, auth=HTTPBasicAuth(self.username, self.token), data=data, timeout=10, verify=True)
         if resp.status_code not in (201, 202):
             raise RuntimeError(
                 f"Jenkins 호출 실패 (status={resp.status_code}, body={resp.text})"
@@ -57,3 +56,4 @@ class JenkinsClient:
             queue_id = -1
 
         return queue_id
+    
