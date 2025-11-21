@@ -133,7 +133,7 @@ EOF
           -v ${WORKSPACE}/app:/workspace \
           -v ${DOCKER_CONFIG}:/kaniko/.docker \
           ${KANIKO_IMAGE} \
-            --dockerfile /workspace/Dockerfile \
+            --dockerfile Dockerfile \
             --context /workspace \
             --destination ${IMAGE_FULL} \
             --single-snapshot \
