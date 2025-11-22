@@ -195,7 +195,7 @@ export const api = {
   },
 
   async postDeploy(payload: any): Promise<any> {
-    const res = await fetch('/deploy', {
+    const res = await fetch('/api/deploy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
