@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from database.yoitang import get_db
-from crud.service import create_service, get_service, get_services_by_user, get_services_count_by_user, get_success_services_count_by_user
+from crud.service import create_service, get_service, get_services_by_user, get_services_count_by_user, get_success_services_count_by_user, get_today_user_services_count, get_user_service_success_rate
 from schemas.service import ServiceCreate, ServiceResponse
 
 router = APIRouter()
@@ -41,3 +41,15 @@ async def get_services_count_by_user_id(user_id: int, db: Session = Depends(get_
 async def get_success_services_count_by_user_id(user_id: int, db: Session = Depends(get_db)):
     count = get_success_services_count_by_user(db, user_id)
     return count
+
+# 오늘 생성된 유저의 서비스 개수 조회
+@router.get("/user/{user_id}/today_count", response_model=int, summary="오늘 생성된 유저의 서비스 개수 조회")
+async def get_today_user_services_count_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    count = get_today_user_services_count(db, user_id)
+    return count
+
+# 특정 유저의 오늘 서비스 성공률 조회
+@router.get("/user/{user_id}/success_rate", response_model=int, summary="특정 유저의 오늘 서비스 성공률 조회")
+async def get_user_service_success_rate_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    success_rate = get_user_service_success_rate(db, user_id)
+    return success_rate
