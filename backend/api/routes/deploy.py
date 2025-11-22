@@ -10,8 +10,8 @@ from database.yoitang import get_db
 
 router = APIRouter()
 
-@router.post("/", summary="새 배포 요청")
-@router.post("", summary="새 배포 요청")
+@router.post("/", summary="새 배포 요청(미완)")
+@router.post("", summary="새 배포 요청(미완)")
 async def deploy(req: DeployRequest):
     """
     유저 입력:
@@ -52,7 +52,7 @@ async def deploy(req: DeployRequest):
     }
 
 # 배포 생성
-@router.post("/", response_model=DeployResponse, summary="새 배포 생성")
+@router.post("/", response_model=DeployResponse, summary="새 배포 생성(미완)")
 async def create_new_deploy(deploy_data: DeployCreate, db: Session = Depends(get_db)):
     return create_deploy(db, deploy_data)
 
@@ -99,7 +99,7 @@ class DeployLog(BaseModel):
     build_number: int
     deploy_id: Optional[str] = None  # 선택적으로 사용 가능
 
-@router.post("/log/receive", summary="Jenkins로부터 배포 로그 수신")
+@router.post("/log/receive", summary="Jenkins로부터 배포 로그 수신(미완)")
 async def receive_deploy_log(log: DeployLog):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     deploy_id = log.deploy_id if log.deploy_id else "None"

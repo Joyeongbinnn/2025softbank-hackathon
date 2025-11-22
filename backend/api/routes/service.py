@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from database.yoitang import get_db
-from crud.service import create_service, get_service, get_services_by_user
+from crud.service import create_service, get_service, get_services_by_user, get_services_count_by_user, get_success_services_count_by_user
 from schemas.service import ServiceCreate, ServiceResponse
 
 router = APIRouter()
@@ -24,7 +24,20 @@ async def get_service_by_id(service_id: int, db: Session = Depends(get_db)):
 
     return service
 
+# 특정 유저의 모든 서비스 조회
 @router.get("/user/{user_id}", response_model=list[ServiceResponse], summary="특정 유저의 모든 서비스 조회")
 async def get_services_by_user_id(user_id: int, db: Session = Depends(get_db)):
     services = get_services_by_user(db, user_id)
     return services
+
+# 특정 유저의 서비스 개수 조회
+@router.get("/user/{user_id}/count", response_model=int, summary="특정 유저의 서비스 개수 조회")
+async def get_services_count_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    count = get_services_count_by_user(db, user_id)
+    return count
+
+# 특정 유저의 활성화 서비스 개수 조회
+@router.get("/user/{user_id}/active_count", response_model=int, summary="특정 유저의 활성화 서비스 개수 조회")
+async def get_success_services_count_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    count = get_success_services_count_by_user(db, user_id)
+    return count
