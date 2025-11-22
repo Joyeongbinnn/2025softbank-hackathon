@@ -1,11 +1,12 @@
+import asyncio
 from sqlalchemy.orm import Session
 from core.jenkins_client import JenkinsClient
 from crud.deploy import update_deploy_status
-from database.yoitang import get_db
+from database.yoitang import SessionLocal
 from schemas.deploy import DeployRequest
 
 async def trigger_jenkins_build(deploy_id: int, req: DeployRequest):
-    db: Session = next(get_db())
+    db = SessionLocal()
     try:
         jenkins = JenkinsClient()
         queue_id = jenkins.trigger_build(
