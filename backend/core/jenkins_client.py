@@ -1,6 +1,7 @@
 import os
 import requests
 import time
+import logging
 from requests.auth import HTTPBasicAuth
 
 
@@ -23,6 +24,9 @@ class JenkinsClient:
         if not all([self.base_url, self.username, self.token]):
             raise RuntimeError("JENKINS_URL / JENKINS_USER / JENKINS_TOKEN 환경변수가 필요합니다.")
 
+        # logger
+        self.logger = logging.getLogger("JenkinsClient")
+
     def trigger_build(
         self,
         prefix: str,
@@ -39,13 +43,26 @@ class JenkinsClient:
             "BRANCH": branch,
             "USE_REPO_DOCKERFILE": str(use_repo_dockerfile).lower(),  # true/False
             "FRONTEND_STACK": frontend_stack,
-        }   
+        }
 
-        resp = requests.post(url, auth=HTTPBasicAuth(self.username, self.token), data=data, timeout=10, verify=True)
+        # Try to obtain CSRF crumb (if Jenkins requires it) and include in headers
+        headers = {}
+        try:
+            crumb_field, crumb = self._get_crumb()
+            if crumb_field and crumb:
+                headers[crumb_field] = crumb
+        except Exception as e:
+            # Log but continue; some Jenkins setups don't require crumb
+            self.logger.debug(f"Failed to get Jenkins crumb: {e}")
+
+        resp = requests.post(url, auth=HTTPBasicAuth(self.username, self.token), data=data, headers=headers, timeout=10, verify=True)
         if resp.status_code not in (201, 202):
-            raise RuntimeError(
-                f"Jenkins 호출 실패 (status={resp.status_code}, body={resp.text})"
+            # Log response for debugging (may include HTML error page)
+            self.logger.error(
+                "Jenkins buildWithParameters failed",
+                extra={"status": resp.status_code, "body": resp.text[:4000]},
             )
+            raise RuntimeError(f"Jenkins 호출 실패 (status={resp.status_code}, body={resp.text})")
 
         location = resp.headers.get("Location", "")
         if not location:
@@ -79,6 +96,20 @@ class JenkinsClient:
             time.sleep(interval)
 
         raise RuntimeError(f"빌드 번호를 가져오지 못했습니다. (queue_id={queue_id})")
+
+    def _get_crumb(self):
+        """
+        Jenkins CSRF crumb을 가져옵니다. 실패하면 (None, None)을 반환합니다.
+        """
+        url = f"{self.base_url}/crumbIssuer/api/json"
+        try:
+            resp = requests.get(url, auth=HTTPBasicAuth(self.username, self.token), timeout=5, verify=True)
+            if resp.status_code == 200:
+                data = resp.json()
+                return data.get("crumbRequestField"), data.get("crumb")
+        except Exception as e:
+            self.logger.debug(f"Error while fetching crumb: {e}")
+        return None, None
 
     def get_build_log_chunk(self, build_number: int, start: int = 0):
         """
