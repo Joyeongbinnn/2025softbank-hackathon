@@ -9,6 +9,7 @@ from database.yoitang import get_db
 router = APIRouter()
 
 @router.post("/", summary="새 배포 요청")
+@router.post("", summary="새 배포 요청")
 async def deploy(req: DeployRequest):
     """
     유저 입력:

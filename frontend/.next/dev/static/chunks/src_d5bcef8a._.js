@@ -3885,16 +3885,42 @@ const api = {
         return deployment;
     },
     async postDeploy (payload) {
-        const res = await fetch('/api/deploy', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+        // Hardcode backend base URL as requested
+        // NOTE: user provided base includes /api, so compose final deploy URL as {API_BASE}/deploy
+        const API_BASE = 'https://www.yoitang.cloud/api';
+        const url = `${API_BASE.replace(/\/$/, '')}/deploy`;
+        // Try the URL, and if it fails (network error or non-ok), try with a trailing slash.
+        const tryFetch = async (target)=>{
+            try {
+                const r = await fetch(target, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                return r;
+            } catch (e) {
+                if (e instanceof Error) throw new Error(`Network error when posting deploy to ${target}: ${e.message}`);
+                throw new Error(`Unknown network error when posting deploy to ${target}`);
+            }
+        };
+        let res = await tryFetch(url);
+        // If initial response is not ok, attempt trailing-slash variant as a fallback
+        if (!res.ok) {
+            const altUrl = url.endsWith('/') ? url.slice(0, -1) : `${url}/`;
+            try {
+                res = await tryFetch(altUrl);
+            } catch (e) {
+                // If the retry produced a network error, rethrow with context from both attempts
+                if (e instanceof Error) throw new Error(`${e.message} (also failed when trying ${url})`);
+                throw e;
+            }
+        }
         if (!res.ok) {
             const text = await res.text();
-            throw new Error(`Deploy request failed: ${res.status} ${text}`);
+            // Include final URL so caller can see where it landed
+            throw new Error(`Deploy request failed: ${res.status} ${text} (url: ${res.url})`);
         }
         return res.json();
     },
@@ -4586,7 +4612,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                         className: "grid grid-cols-2 gap-3",
                                         children: [
                                             {
-                                                id: 'react',
+                                                id: 'react-vite',
                                                 label: 'React (Vite/CRA)',
                                                 enabled: true
                                             },
@@ -5284,7 +5310,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$wizard$
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$wizard$2f$Step1BasicInfo$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/wizard/Step1BasicInfo.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$wizard$2f$Step2GitSetup$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/wizard/Step2GitSetup.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$wizard$2f$Step3Summary$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/wizard/Step3Summary.tsx [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/utils/mockData.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/api.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 ;
@@ -5362,11 +5388,25 @@ const NewProject = ()=>{
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].loading(language === 'ko' ? '배포를 시작합니다...' : language === 'en' ? 'Starting deployment...' : 'デプロイを開始します...', {
             id: 'deploy'
         });
-        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["simulateDeployment"])(3000);
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success(language === 'ko' ? '배포가 시작되었습니다! 🎉' : language === 'en' ? 'Deployment started! 🎉' : 'デプロイが開始されました! 🎉', {
-            id: 'deploy'
-        });
-        navigate('/dashboard');
+        try {
+            const result = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].postDeploy({
+                prefix: domainPrefix,
+                git_repo: gitUrl,
+                branch: branch,
+                use_repo_dockerfile: useRepoDockerfile,
+                frontend_stack: hasFrontend ? frontendStack : undefined
+            });
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success(language === 'ko' ? '배포가 시작되었습니다! 🎉' : language === 'en' ? 'Deployment started! 🎉' : 'デプロイが開始されました! 🎉', {
+                id: 'deploy'
+            });
+            navigate('/dashboard');
+        } catch (error) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(language === 'ko' ? `배포 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}` : language === 'en' ? `Deployment failed: ${error instanceof Error ? error.message : 'Unknown error'}` : `デプロイ失敗: ${error instanceof Error ? error.message : '不明なエラー'}`, {
+                id: 'deploy'
+            });
+        } finally{
+            setIsDeploying(false);
+        }
     };
     const renderStep = ()=>{
         switch(currentStep){
@@ -5378,7 +5418,7 @@ const NewProject = ()=>{
                     onTeamNameChange: setTeamName
                 }, void 0, false, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 116,
+                    lineNumber: 135,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0));
             case 2:
@@ -5401,7 +5441,7 @@ const NewProject = ()=>{
                     onUseRepoDockerfileChange: setUseRepoDockerfile
                 }, void 0, false, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 125,
+                    lineNumber: 144,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0));
             case 3:
@@ -5418,7 +5458,7 @@ const NewProject = ()=>{
                     useRepoDockerfile: useRepoDockerfile
                 }, void 0, false, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 146,
+                    lineNumber: 165,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0));
             default:
@@ -5439,14 +5479,14 @@ const NewProject = ()=>{
                             className: "h-4 w-4 mr-2"
                         }, void 0, false, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 172,
+                            lineNumber: 191,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$i18n$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["t"])(language, 'backToDashboard')
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 167,
+                    lineNumber: 186,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5460,7 +5500,7 @@ const NewProject = ()=>{
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$i18n$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["t"])(language, 'createNewService')
                                 }, void 0, false, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 179,
+                                    lineNumber: 198,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5468,13 +5508,13 @@ const NewProject = ()=>{
                                     children: language === 'ko' ? '새로운 서비스를 생성하고 자동 배포를 시작합니다' : language === 'en' ? 'Create a new service and start automatic deployment' : '新しいサービスを作成し、自動デプロイを開始します'
                                 }, void 0, false, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 180,
+                                    lineNumber: 199,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 178,
+                            lineNumber: 197,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$wizard$2f$StepIndicator$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -5482,7 +5522,7 @@ const NewProject = ()=>{
                             currentStep: currentStep
                         }, void 0, false, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 190,
+                            lineNumber: 209,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -5491,12 +5531,12 @@ const NewProject = ()=>{
                                 children: renderStep()
                             }, void 0, false, {
                                 fileName: "[project]/src/views/NewProject.tsx",
-                                lineNumber: 194,
+                                lineNumber: 213,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 193,
+                            lineNumber: 212,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5512,14 +5552,14 @@ const NewProject = ()=>{
                                             className: "h-4 w-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/src/views/NewProject.tsx",
-                                            lineNumber: 205,
+                                            lineNumber: 224,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         language === 'ko' ? '이전' : language === 'en' ? 'Previous' : '前へ'
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 199,
+                                    lineNumber: 218,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 currentStep < STEPS.length ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -5531,13 +5571,13 @@ const NewProject = ()=>{
                                             className: "h-4 w-4 ml-2"
                                         }, void 0, false, {
                                             fileName: "[project]/src/views/NewProject.tsx",
-                                            lineNumber: 212,
+                                            lineNumber: 231,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 210,
+                                    lineNumber: 229,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                     onClick: handleDeploy,
@@ -5548,37 +5588,37 @@ const NewProject = ()=>{
                                             className: "h-4 w-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/src/views/NewProject.tsx",
-                                            lineNumber: 220,
+                                            lineNumber: 239,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         isDeploying ? language === 'ko' ? '배포 중...' : language === 'en' ? 'Deploying...' : 'デプロイ中...' : (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$i18n$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["t"])(language, 'deploy')
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 215,
+                                    lineNumber: 234,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 198,
+                            lineNumber: 217,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 176,
+                    lineNumber: 195,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/src/views/NewProject.tsx",
-            lineNumber: 166,
+            lineNumber: 185,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/src/views/NewProject.tsx",
-        lineNumber: 165,
+        lineNumber: 184,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

@@ -195,27 +195,45 @@ export const api = {
   },
 
   async postDeploy(payload: any): Promise<any> {
-    // Use NEXT_PUBLIC_API_BASE when provided so frontend dev server (localhost)
-    // can call the actual backend without relying on a proxy.
-    const API_BASE = String(((globalThis as any)?.process?.env?.NEXT_PUBLIC_API_BASE) || '').replace(/\/$/, '')
-    const url = API_BASE ? `${API_BASE}/api/deploy` : '/api/deploy'
+  // Hardcode backend base URL as requested
+  // NOTE: user provided base includes /api, so compose final deploy URL as {API_BASE}/deploy
+  const API_BASE = 'https://www.yoitang.cloud/api'
+  const url = `${API_BASE.replace(/\/$/, '')}/deploy`
 
-    let res: Response
-    try {
-      res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-    } catch (e) {
-      // 네트워크/혼합콘텐츠 등으로 fetch 자체가 실패할 경우 자세한 원인을 던집니다
-      if (e instanceof Error) throw new Error(`Network error when posting deploy: ${e.message}`)
-      throw new Error('Unknown network error when posting deploy')
+    // Try the URL, and if it fails (network error or non-ok), try with a trailing slash.
+    const tryFetch = async (target: string) => {
+      try {
+        const r = await fetch(target, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          // keep default redirect behavior (follow)
+        })
+        return r
+      } catch (e) {
+        if (e instanceof Error) throw new Error(`Network error when posting deploy to ${target}: ${e.message}`)
+        throw new Error(`Unknown network error when posting deploy to ${target}`)
+      }
+    }
+
+    let res = await tryFetch(url)
+
+    // If initial response is not ok, attempt trailing-slash variant as a fallback
+    if (!res.ok) {
+      const altUrl = url.endsWith('/') ? url.slice(0, -1) : `${url}/`
+      try {
+        res = await tryFetch(altUrl)
+      } catch (e) {
+        // If the retry produced a network error, rethrow with context from both attempts
+        if (e instanceof Error) throw new Error(`${e.message} (also failed when trying ${url})`)
+        throw e
+      }
     }
 
     if (!res.ok) {
       const text = await res.text()
-      throw new Error(`Deploy request failed: ${res.status} ${text}`)
+      // Include final URL so caller can see where it landed
+      throw new Error(`Deploy request failed: ${res.status} ${text} (url: ${res.url})`)
     }
 
     return res.json()

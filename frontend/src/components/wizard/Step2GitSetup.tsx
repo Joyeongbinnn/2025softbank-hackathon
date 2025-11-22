@@ -289,7 +289,7 @@ const Step2GitSetup = ({
               <Label className="mb-2">{language === 'ko' ? '프론트엔드 스택 선택' : language === 'en' ? 'Frontend Stack' : 'フロントエンドスタック'}</Label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { id: 'react', label: 'React (Vite/CRA)', enabled: true },
+                  { id: 'react-vite', label: 'React (Vite/CRA)', enabled: true },
                   { id: 'next', label: 'Next.js', enabled: true },
                   { id: 'vue', label: 'Vue (Vite)', enabled: false },
                   { id: 'static', label: 'Static HTML (Nginx)', enabled: true },
