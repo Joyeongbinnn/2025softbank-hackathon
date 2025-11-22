@@ -81,31 +81,7 @@ pipeline {
 
             git branch: branch, url: repoUrl
           }
-        sh """
-          echo "Clone completed" | while read line; do
-            curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive \
-              -H "Content-Type: application/json" \
-              -d "{
-                \\"stage\\": \\"Checkout\\",
-                \\"message\\": \\"$line\\",
-                \\"prefix\\": \\"${params.PREFIX}\\",
-                \\"build_number\\": ${env.BUILD_NUMBER}
-              }"
-          done
-        """
-        sh """
-          ls -1 | head -5 | while read line; do
-            curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive \
-              -H "Content-Type: application/json" \
-              -d "{
-                \\"stage\\": \\"Checkout\\",
-                \\"message\\": \\"File: $line\\",
-                \\"prefix\\": \\"${params.PREFIX}\\",
-                \\"build_number\\": ${env.BUILD_NUMBER}
-              }"
-          done
-        """
-
+          sh 'echo "[Checkout] app 디렉터리 구조"; ls -R'
         }
       }
     }
