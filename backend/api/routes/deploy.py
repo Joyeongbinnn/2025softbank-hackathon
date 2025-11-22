@@ -36,6 +36,8 @@ async def deploy(req: DeployRequest):
             branch=req.branch,
             use_repo_dockerfile=req.use_repo_dockerfile,
             frontend_stack=req.frontend_stack,
+            git_pat=req.git_pat,   # 👈 추가
+
         )
     except Exception as e:
         raise HTTPException(

@@ -15,6 +15,8 @@ class DeployRequest(BaseModel):
     branch: str = "main"
     use_repo_dockerfile: bool = False
     frontend_stack: Optional[str] = None
+    git_pat: Optional[str] = None
+
 
     @field_validator("prefix")
     @classmethod

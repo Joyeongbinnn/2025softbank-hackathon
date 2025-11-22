@@ -34,6 +34,8 @@ class JenkinsClient:
         branch: str = "main",
         use_repo_dockerfile: bool = False,
         frontend_stack: str = "react-vite",
+        git_pat: str | None = None,   # 👈 추가
+
     ) -> int:
         url = f"{self.base_url}/job/{self.job_name}/buildWithParameters"
 
@@ -44,6 +46,8 @@ class JenkinsClient:
             "USE_REPO_DOCKERFILE": str(use_repo_dockerfile).lower(),  # true/False
             "FRONTEND_STACK": frontend_stack,
         }
+        if git_pat:
+            data["GIT_PAT"] = git_pat  # 👈 PAT 있을 때만 전달
 
         # Try to obtain CSRF crumb (if Jenkins requires it) and include in headers
         headers = {}

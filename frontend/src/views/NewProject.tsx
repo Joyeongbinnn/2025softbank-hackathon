@@ -36,6 +36,8 @@ const NewProject = () => {
   const [backendStack, setBackendStack] = useState('')
   const [frontendStack, setFrontendStack] = useState('')
   const [useRepoDockerfile, setUseRepoDockerfile] = useState(false)
+  const [gitPat, setGitPat] = useState("");
+
 
   const validateStep = () => {
     if (currentStep === 1) {
@@ -103,6 +105,8 @@ const NewProject = () => {
         branch: branch,
         use_repo_dockerfile: useRepoDockerfile,
         frontend_stack: hasFrontend ? frontendStack : undefined,
+        git_pat: gitPat || undefined,
+
       })
 
       toast.success(
@@ -158,6 +162,8 @@ const NewProject = () => {
             onBackendStackChange={setBackendStack}
             onFrontendStackChange={setFrontendStack}
             onUseRepoDockerfileChange={setUseRepoDockerfile}
+            pat={gitPat}
+            onPatChange={setGitPat}
           />
         )
       case 3:

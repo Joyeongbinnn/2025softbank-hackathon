@@ -29,6 +29,8 @@ interface Step2Props {
   onBackendStackChange: (value: string) => void;
   onFrontendStackChange: (value: string) => void;
   onUseRepoDockerfileChange: (value: boolean) => void;
+  pat: string;
+  onPatChange: (value: string) => void;
 }
 
 const Step2GitSetup = ({
@@ -48,10 +50,11 @@ const Step2GitSetup = ({
   onBackendStackChange,
   onFrontendStackChange,
   onUseRepoDockerfileChange,
+  pat,
+  onPatChange,
 }: Step2Props) => {
   const { language } = useLanguage();
   const [isPATModalOpen, setIsPATModalOpen] = useState(false);
-  const [pat, setPat] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [branches, setBranches] = useState<string[]>(["main", "develop", "staging"]);
   const [isLoadingRepo, setIsLoadingRepo] = useState(false);
@@ -108,7 +111,7 @@ const Step2GitSetup = ({
   };
 
   const handlePATConfirm = (patValue: string) => {
-    setPat(patValue);
+    onPatChange(patValue);   
     setIsPATModalOpen(false);
   };
 

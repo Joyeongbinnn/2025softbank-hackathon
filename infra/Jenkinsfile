@@ -44,39 +44,48 @@ pipeline {
       choices: ['react-vite'],
       description: '프론트엔드 스택 (현재는 React(Vite)만 지원)'
     )
+    string(
+      name: 'GIT_PAT',
+      defaultValue: '',
+      description: 'GitHub PAT (private repo일 때만 사용)',
+      trim: true
+    )
   }
 
   stages {
 
     // 1) 팀 레포를 app/ 아래에 체크아웃
-    stage('Checkout') {
+        stage('Checkout') {
       steps {
         dir('app') {
           deleteDir()
-          sh """
-            echo "[Checkout] Git clone 시작: ${params.GIT_REPO} (${params.BRANCH})"
+          script {
+            def repoUrl = params.GIT_REPO.trim()
+            def branch  = params.BRANCH.trim()
+            def pat     = params.GIT_PAT?.trim()
 
-            git clone -b ${params.BRANCH} ${params.GIT_REPO} . | while IFS= read -r line; do
-              curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive \\
-                   -H "Content-Type: application/json" \\
-                   -d '{"stage":"Checkout","message":"'\$line'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
-            done
+            if (pat) {
+              if (!repoUrl.startsWith('https://github.com/')) {
+                error "[Checkout] private repo는 https://github.com/... 형식 URL만 지원합니다."
+              }
+              // 최소한 @ 정도만 escape
+              def safePat = pat.replace('@', '%40')
+              repoUrl = repoUrl.replace(
+                'https://github.com/',
+                "https://${safePat}@github.com/"
+              )
+              echo "[Checkout] private repo: PAT으로 인증하여 clone 수행"
+            } else {
+              echo "[Checkout] public repo: ${repoUrl} (${branch})"
+            }
 
-            echo "app 디렉터리 구조" | while IFS= read -r line; do
-              curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive \\
-                   -H "Content-Type: application/json" \\
-                   -d '{"stage":"Checkout","message":"'\$line'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
-            done
-
-            ls -R | while IFS= read -r line; do
-              curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive \\
-                   -H "Content-Type: application/json" \\
-                   -d '{"stage":"Checkout","message":"'\$line'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
-            done
-          """
+            git branch: branch, url: repoUrl
+          }
+          sh 'echo "[Checkout] app 디렉터리 구조"; ls -R'
         }
       }
     }
+
   
 
     // 2) frontend/ 기준으로 npm ci + eslint
