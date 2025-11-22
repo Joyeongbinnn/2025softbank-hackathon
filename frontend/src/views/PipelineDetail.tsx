@@ -32,6 +32,14 @@ const PipelineDetail = () => {
         
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="space-y-4">
+            <h2 className="text-xl font-semibold">현재 상태</h2>
+            <div>
+              <img 
+                src="/images/working.gif" 
+                alt="Working" 
+                className="w-full max-w-md mx-auto mb-6"
+              />
+            </div>
             <h2 className="text-xl font-semibold">{t(language, 'deployment')}</h2>
             <StageIndicator stages={mockPipelineStages} />
           </div>
