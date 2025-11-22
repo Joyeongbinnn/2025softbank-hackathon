@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GitBranch, Code2, Server, Layers, Lock } from "lucide-react";
+import { GitBranch, Code2, Server, Layers, Lock, Loader2, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { t } from "@/lib/i18n";
 import PATModal from "./PATModal";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import api from "@/lib/api";
 
 interface Step2Props {
   gitUrl: string;
@@ -50,6 +52,56 @@ const Step2GitSetup = ({
   const { language } = useLanguage();
   const [isPATModalOpen, setIsPATModalOpen] = useState(false);
   const [pat, setPat] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [branches, setBranches] = useState<string[]>(["main", "develop", "staging"]);
+  const [isLoadingRepo, setIsLoadingRepo] = useState(false);
+  const [repoError, setRepoError] = useState("");
+
+  // Git URL 변경 시 저장소 정보 조회
+  useEffect(() => {
+    const fetchRepoInfo = async () => {
+      if (!gitUrl || !gitUrl.includes("github.com")) {
+        setBranches(["main", "develop", "staging"]);
+        setIsPrivate(false);
+        setRepoError("");
+        return;
+      }
+
+      setIsLoadingRepo(true);
+      setRepoError("");
+
+      try {
+        const repoInfo = await api.getRepoInfo(gitUrl, pat || undefined);
+        setIsPrivate(repoInfo.is_private);
+        setBranches(repoInfo.branches);
+        
+        // 기본 브랜치가 현재 선택된 branch에 없으면 첫 번째 브랜치로 변경
+        if (!repoInfo.branches.includes(branch)) {
+          onBranchChange(repoInfo.branches[0] || "main");
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to fetch repository information";
+        setRepoError(errorMessage);
+        
+        // 에러가 private repo 관련이면
+        if (errorMessage.includes("not found") || errorMessage.includes("PAT")) {
+          setIsPrivate(true);
+          setBranches(["main"]);
+        } else {
+          setBranches(["main", "develop", "staging"]);
+        }
+      } finally {
+        setIsLoadingRepo(false);
+      }
+    };
+
+    // 500ms 디바운스
+    const timer = setTimeout(() => {
+      fetchRepoInfo();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [gitUrl, pat]);
 
   const handleGitUrlChange = (value: string) => {
     onGitUrlChange(value);
@@ -64,13 +116,28 @@ const Step2GitSetup = ({
     <div className="space-y-6 animate-fade-in">
       <div className="space-y-2">
         <Label htmlFor="gitUrl">{t(language, 'gitRepository')} *</Label>
-        <Input
-          id="gitUrl"
-          placeholder="https://github.com/username/repository"
-          value={gitUrl}
-          onChange={(e) => handleGitUrlChange(e.target.value)}
-          className="text-base"
-        />
+        <div className="relative">
+          <Input
+            id="gitUrl"
+            placeholder="https://github.com/username/repository"
+            value={gitUrl}
+            onChange={(e) => handleGitUrlChange(e.target.value)}
+            className="text-base"
+          />
+          {isLoadingRepo && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
+          )}
+        </div>
+        {repoError && (
+          <Alert className="border-red-200 bg-red-50 mt-2">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800 text-sm">
+              {repoError}
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -80,14 +147,14 @@ const Step2GitSetup = ({
             <SelectValue placeholder={language === 'ko' ? '브랜치 선택' : language === 'en' ? 'Select branch' : 'ブランチを選択'} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="main">main</SelectItem>
-            <SelectItem value="develop">develop</SelectItem>
-            <SelectItem value="staging">staging</SelectItem>
+            {branches.map((b) => (
+              <SelectItem key={b} value={b}>{b}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
-        {/* PAT Button for Private Repository */}
-        {gitUrl && (
+        {/* PAT Button - Private Repository일 때만 표시 */}
+        {gitUrl && isPrivate && (
           <div className="mt-3">
             <Button
               variant="outline"

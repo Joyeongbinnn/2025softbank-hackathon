@@ -208,6 +208,109 @@ export const api = {
 
     return res.json()
   },
+
+  // GitHub APIs - Direct calls to GitHub API
+  async getRepoInfo(repoUrl: string, pat?: string): Promise<{
+    is_private: boolean
+    owner: string
+    repo: string
+    branches: string[]
+  }> {
+    // GitHub URL에서 owner와 repo 추출
+    const patterns = [
+      /https:\/\/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?\/?$/,
+      /git@github\.com:([^/]+)\/([^/]+?)(?:\.git)?$/
+    ]
+    
+    let owner = '', repo = ''
+    for (const pattern of patterns) {
+      const match = repoUrl.trim().match(pattern)
+      if (match) {
+        owner = match[1]
+        repo = match[2]
+        break
+      }
+    }
+
+    if (!owner || !repo) {
+      throw new Error('Invalid GitHub URL format')
+    }
+
+    const headers: HeadersInit = {
+      'Accept': 'application/vnd.github.v3+json',
+    }
+    if (pat) {
+      headers['Authorization'] = `token ${pat}`
+    }
+
+    try {
+      // 1. 저장소 정보 조회
+      const repoResponse = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}`,
+        { headers }
+      )
+
+      if (repoResponse.status === 404) {
+        throw new Error('Repository not found. Check the URL and PAT if it\'s a private repo.')
+      }
+
+      if (repoResponse.status === 401) {
+        throw new Error('Invalid PAT or authentication failed')
+      }
+
+      if (!repoResponse.ok) {
+        throw new Error(`GitHub API error: ${repoResponse.statusText}`)
+      }
+
+      const repoData = await repoResponse.json()
+      const is_private = repoData.private
+      const defaultBranch = repoData.default_branch
+
+      // 2. 브랜치 목록 조회
+      let branches: string[] = [defaultBranch]
+      try {
+        const branchesResponse = await fetch(
+          `https://api.github.com/repos/${owner}/${repo}/branches?per_page=100`,
+          { headers }
+        )
+
+        if (branchesResponse.ok) {
+          const branchesData = await branchesResponse.json()
+          branches = branchesData.map((b: any) => b.name)
+          
+          // 기본 브랜치를 맨 앞에 배치
+          if (branches.includes(defaultBranch)) {
+            branches = branches.filter(b => b !== defaultBranch)
+            branches.unshift(defaultBranch)
+          }
+        }
+      } catch (e) {
+        // 브랜치 조회 실패해도 기본 브랜치는 있음
+        console.warn('Failed to fetch branches:', e)
+      }
+
+      return {
+        is_private,
+        owner,
+        repo,
+        branches,
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error
+      }
+      throw new Error('Failed to fetch repository information')
+    }
+  },
+
+  async getBranches(repoUrl: string, pat?: string): Promise<string[]> {
+    try {
+      const repoInfo = await this.getRepoInfo(repoUrl, pat)
+      return repoInfo.branches
+    } catch (error) {
+      throw error
+    }
+  },
 }
 
 export default api

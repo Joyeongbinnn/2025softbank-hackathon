@@ -3353,6 +3353,641 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
 }),
+"[project]/src/utils/mockData.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+// Mock data for Yoitang Auto Deploy
+// Re-exporting types from @/types for backward compatibility
+__turbopack_context__.s([
+    "calculateDashboardStats",
+    ()=>calculateDashboardStats,
+    "environmentOptions",
+    ()=>environmentOptions,
+    "mockDeploymentHistory",
+    ()=>mockDeploymentHistory,
+    "mockDeployments",
+    ()=>mockDeployments,
+    "mockEnvironments",
+    ()=>mockEnvironments,
+    "mockLogs",
+    ()=>mockLogs,
+    "mockPipelineStages",
+    ()=>mockPipelineStages,
+    "mockServices",
+    ()=>mockServices,
+    "mockTenant",
+    ()=>mockTenant,
+    "simulateDeployment",
+    ()=>simulateDeployment,
+    "teamOptions",
+    ()=>teamOptions,
+    "techStackOptions",
+    ()=>techStackOptions
+]);
+const mockTenant = {
+    id: 'tenant-1',
+    name: 'Team Alpha',
+    description: 'Main development team',
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-15')
+};
+const mockServices = [
+    {
+        id: 'service-1',
+        tenantId: 'tenant-1',
+        name: 'Backend API',
+        gitUrl: 'https://github.com/team/backend-api.git',
+        branch: 'main',
+        domainPrefix: 'api-team1',
+        hasBackend: true,
+        hasFrontend: false,
+        createdAt: new Date('2024-01-05'),
+        updatedAt: new Date('2024-01-15'),
+        environments: [
+            {
+                id: 'env-1-dev',
+                serviceId: 'service-1',
+                name: 'Development',
+                type: 'dev',
+                status: 'success',
+                url: 'https://dev-api-team1.yoitang.cloud',
+                lastDeploymentTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
+                healthStatus: 'healthy',
+                commitHash: 'a3f4c21',
+                commitMessage: 'Add authentication endpoints'
+            },
+            {
+                id: 'env-1-prod',
+                serviceId: 'service-1',
+                name: 'Production',
+                type: 'prod',
+                status: 'success',
+                url: 'https://api-team1.yoitang.cloud',
+                lastDeploymentTime: new Date(Date.now() - 5 * 60 * 60 * 1000),
+                healthStatus: 'healthy',
+                commitHash: 'b7e8d92',
+                commitMessage: 'Fix critical bug in payment module'
+            }
+        ]
+    },
+    {
+        id: 'service-2',
+        tenantId: 'tenant-1',
+        name: 'Frontend Dashboard',
+        gitUrl: 'https://github.com/team/frontend-dashboard.git',
+        branch: 'main',
+        domainPrefix: 'dashboard-team1',
+        hasBackend: false,
+        hasFrontend: true,
+        createdAt: new Date('2024-01-08'),
+        updatedAt: new Date('2024-01-15'),
+        environments: [
+            {
+                id: 'env-2-dev',
+                serviceId: 'service-2',
+                name: 'Development',
+                type: 'dev',
+                status: 'deploying',
+                url: 'https://dev-dashboard-team1.yoitang.cloud',
+                lastDeploymentTime: new Date(Date.now() - 10 * 60 * 1000),
+                healthStatus: 'degraded',
+                commitHash: 'c9a1f44',
+                commitMessage: 'UI improvements for deployment view'
+            },
+            {
+                id: 'env-2-staging',
+                serviceId: 'service-2',
+                name: 'Staging',
+                type: 'staging',
+                status: 'success',
+                url: 'https://staging-dashboard-team1.yoitang.cloud',
+                lastDeploymentTime: new Date(Date.now() - 8 * 60 * 60 * 1000),
+                healthStatus: 'healthy',
+                commitHash: 'd2c5e88',
+                commitMessage: 'Merge PR: Add dark mode support'
+            }
+        ]
+    },
+    {
+        id: 'service-3',
+        tenantId: 'tenant-1',
+        name: 'Analytics Service',
+        gitUrl: 'https://github.com/team/analytics-service.git',
+        branch: 'main',
+        domainPrefix: 'analytics-team1',
+        hasBackend: true,
+        hasFrontend: true,
+        createdAt: new Date('2024-01-10'),
+        updatedAt: new Date('2024-01-15'),
+        environments: [
+            {
+                id: 'env-3-prod',
+                serviceId: 'service-3',
+                name: 'Production',
+                type: 'prod',
+                status: 'success',
+                url: 'https://analytics-team1.yoitang.cloud',
+                lastDeploymentTime: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                healthStatus: 'healthy',
+                commitHash: 'e4f6g89',
+                commitMessage: 'Release: Analytics v2.1 with real-time metrics'
+            }
+        ]
+    }
+];
+const mockEnvironments = mockServices.flatMap((s)=>s.environments).map((env)=>({
+        ...env
+    }));
+const mockDeployments = [
+    {
+        id: 'deploy-1',
+        serviceId: 'service-1',
+        environmentId: 'env-1-prod',
+        commitHash: 'b7e8d92',
+        commitMessage: 'Fix critical bug in payment module',
+        branch: 'main',
+        status: 'success',
+        triggeredBy: 'push',
+        startTime: new Date(Date.now() - 5 * 60 * 60 * 1000),
+        endTime: new Date(Date.now() - 5 * 60 * 60 * 1000 + 3 * 60 * 1000),
+        duration: 180
+    },
+    {
+        id: 'deploy-2',
+        serviceId: 'service-2',
+        environmentId: 'env-2-dev',
+        commitHash: 'c9a1f44',
+        commitMessage: 'UI improvements for deployment view',
+        branch: 'develop',
+        status: 'running',
+        triggeredBy: 'push',
+        startTime: new Date(Date.now() - 10 * 60 * 1000)
+    },
+    {
+        id: 'deploy-3',
+        serviceId: 'service-1',
+        environmentId: 'env-1-dev',
+        commitHash: 'a3f4c21',
+        commitMessage: 'Add authentication endpoints',
+        branch: 'develop',
+        status: 'success',
+        triggeredBy: 'manual',
+        startTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        endTime: new Date(Date.now() - 2 * 60 * 60 * 1000 + 2 * 60 * 1000),
+        duration: 120
+    },
+    {
+        id: 'deploy-4',
+        serviceId: 'service-3',
+        environmentId: 'env-3-prod',
+        commitHash: 'e4f6g89',
+        commitMessage: 'Release: Analytics v2.1 with real-time metrics',
+        branch: 'main',
+        status: 'success',
+        triggeredBy: 'push',
+        startTime: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        endTime: new Date(Date.now() - 24 * 60 * 60 * 1000 + 4 * 60 * 1000),
+        duration: 240
+    },
+    {
+        id: 'deploy-5',
+        serviceId: 'service-2',
+        environmentId: 'env-2-staging',
+        commitHash: 'd2c5e88',
+        commitMessage: 'Merge PR: Add dark mode support',
+        branch: 'staging',
+        status: 'success',
+        triggeredBy: 'push',
+        startTime: new Date(Date.now() - 8 * 60 * 60 * 1000),
+        endTime: new Date(Date.now() - 8 * 60 * 60 * 1000 + 2.5 * 60 * 1000),
+        duration: 150
+    }
+];
+const mockDeploymentHistory = [
+    {
+        id: '1',
+        time: '10:32',
+        branch: 'main',
+        status: 'success',
+        commitMessage: 'Fix critical bug in payment module',
+        commitHash: 'b7e8d92'
+    },
+    {
+        id: '2',
+        time: '09:15',
+        branch: 'develop',
+        status: 'success',
+        commitMessage: 'Add authentication endpoints',
+        commitHash: 'a3f4c21'
+    },
+    {
+        id: '3',
+        time: '08:47',
+        branch: 'staging',
+        status: 'success',
+        commitMessage: 'Merge PR: Add dark mode support',
+        commitHash: 'd2c5e88'
+    },
+    {
+        id: '4',
+        time: '어제 18:22',
+        branch: 'main',
+        status: 'failed',
+        commitMessage: 'Database migration',
+        commitHash: 'c5e6f90'
+    }
+];
+const mockPipelineStages = [
+    {
+        id: '1',
+        name: 'Git Clone',
+        status: 'success',
+        duration: '12초'
+    },
+    {
+        id: '2',
+        name: 'Build & Test',
+        status: 'success',
+        duration: '2분 34초'
+    },
+    {
+        id: '3',
+        name: 'Docker Build & Push',
+        status: 'success',
+        duration: '45초'
+    },
+    {
+        id: '4',
+        name: 'k3s Deploy',
+        status: 'running',
+        duration: '1분 12초'
+    },
+    {
+        id: '5',
+        name: 'Health Check',
+        status: 'waiting'
+    }
+];
+const mockLogs = `[2024-01-15 10:32:15] Starting deployment process...
+[2024-01-15 10:32:16] Checking out code from GitHub...
+[2024-01-15 10:32:18] ✓ Code checkout successful
+[2024-01-15 10:32:18] Building Docker image...
+[2024-01-15 10:32:20] Step 1/8 : FROM node:18-alpine
+[2024-01-15 10:32:21] ---> Pulling from library/node
+[2024-01-15 10:32:45] Step 2/8 : WORKDIR /app
+[2024-01-15 10:32:45] ---> Running in 3f2a1b4c5d6e
+[2024-01-15 10:33:12] Step 3/8 : COPY package*.json ./
+[2024-01-15 10:33:13] ---> 7a8b9c0d1e2f
+[2024-01-15 10:33:45] Step 4/8 : RUN npm ci --production
+[2024-01-15 10:34:52] ✓ Docker image built successfully
+[2024-01-15 10:34:53] Pushing image to ECR...
+[2024-01-15 10:35:38] ✓ Image pushed to ECR
+[2024-01-15 10:35:39] Applying k3s configuration...
+[2024-01-15 10:36:20] Creating deployment in k3s...
+[2024-01-15 10:36:51] ✓ Deployment successful`;
+const techStackOptions = [
+    'React',
+    'Vue',
+    'Angular',
+    'Next.js',
+    'Django',
+    'FastAPI',
+    'Express',
+    'NestJS',
+    'PostgreSQL',
+    'MySQL',
+    'MongoDB',
+    'Redis',
+    'Nginx',
+    'Docker',
+    'Kubernetes'
+];
+const teamOptions = [
+    {
+        value: 'tenant-1',
+        label: 'Team Alpha'
+    },
+    {
+        value: 'tenant-2',
+        label: 'Team Beta'
+    },
+    {
+        value: 'tenant-3',
+        label: 'Team Gamma'
+    }
+];
+const environmentOptions = [
+    {
+        value: 'dev',
+        label: 'Development'
+    },
+    {
+        value: 'staging',
+        label: 'Staging'
+    },
+    {
+        value: 'prod',
+        label: 'Production'
+    }
+];
+const calculateDashboardStats = (services)=>{
+    const totalServices = services.length;
+    const totalEnvironments = services.flatMap((s)=>s.environments).length;
+    // Calculate deployments from today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deploymentsToday = mockDeployments.filter((d)=>{
+        const deployDate = new Date(d.startTime);
+        deployDate.setHours(0, 0, 0, 0);
+        return deployDate.getTime() === today.getTime();
+    });
+    const successfulToday = deploymentsToday.filter((d)=>d.status === 'success').length;
+    const failedToday = deploymentsToday.filter((d)=>d.status === 'failed').length;
+    const successRate = mockDeployments.length > 0 ? Math.round(mockDeployments.filter((d)=>d.status === 'success').length / mockDeployments.length * 100) : 100;
+    return {
+        totalServices,
+        successfulDeploymentsToday: successfulToday,
+        failedDeploymentsToday: failedToday,
+        deploymentSuccessRate: successRate,
+        activeEnvironments: services.flatMap((s)=>s.environments).filter((e)=>e.status !== 'idle').length,
+        totalDeployments: mockDeployments.length
+    };
+};
+const simulateDeployment = (duration = 2000)=>{
+    return new Promise((resolve)=>{
+        setTimeout(resolve, duration);
+    });
+};
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/src/lib/api.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+// src/lib/api.ts - API abstraction layer for backend integration
+// Currently returns mock data; ready to be replaced with actual REST/GraphQL API calls
+__turbopack_context__.s([
+    "api",
+    ()=>api,
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/utils/mockData.ts [app-client] (ecmascript)");
+;
+// Simulate API latency
+const delay = (ms = 500)=>new Promise((resolve)=>setTimeout(resolve, ms));
+const api = {
+    // Tenant APIs
+    async getTenant (tenantId) {
+        await delay();
+        return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockTenant"];
+    },
+    // Service/Project APIs
+    async listServices (tenantId) {
+        await delay();
+        return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockServices"].filter((s)=>s.tenantId === tenantId);
+    },
+    async getService (serviceId) {
+        await delay();
+        const service = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockServices"].find((s)=>s.id === serviceId);
+        if (!service) throw new Error('Service not found');
+        return service;
+    },
+    async createService (payload) {
+        await delay(2000); // Simulate longer creation time
+        const newService = {
+            id: `service-${Date.now()}`,
+            tenantId: payload.tenantId,
+            name: payload.name,
+            gitUrl: payload.gitUrl,
+            branch: payload.branch,
+            domainPrefix: payload.domainPrefix,
+            hasBackend: payload.hasBackend,
+            hasFrontend: payload.hasFrontend,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            environments: [
+                {
+                    id: `env-${Date.now()}-1`,
+                    serviceId: `service-${Date.now()}`,
+                    name: 'dev',
+                    type: 'dev',
+                    status: 'idle',
+                    url: `https://dev.${payload.domainPrefix}.yoitang.cloud`
+                },
+                {
+                    id: `env-${Date.now()}-2`,
+                    serviceId: `service-${Date.now()}`,
+                    name: 'prod',
+                    type: 'prod',
+                    status: 'idle',
+                    url: `https://${payload.domainPrefix}.yoitang.cloud`
+                }
+            ]
+        };
+        return newService;
+    },
+    // Dashboard APIs
+    async getDashboardData (tenantId) {
+        await delay();
+        const services = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockServices"].filter((s)=>s.tenantId === tenantId);
+        const stats = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["calculateDashboardStats"])(services);
+        return {
+            stats,
+            services,
+            recentDeployments: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockDeployments"].slice(0, 5)
+        };
+    },
+    // Pipeline APIs
+    async getPipelineDetail (serviceId, environmentId) {
+        await delay();
+        const service = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockServices"].find((s)=>s.id === serviceId);
+        if (!service) throw new Error('Service not found');
+        const pipeline = {
+            id: `pipeline-${serviceId}-${environmentId}`,
+            serviceId,
+            environmentId,
+            stages: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockPipelineStages"]
+        };
+        const deployments = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockDeployments"].filter((d)=>d.serviceId === serviceId && d.environmentId === environmentId);
+        return {
+            service,
+            pipeline,
+            deployments
+        };
+    },
+    // Deployment APIs
+    async listDeployments (tenantId, serviceId) {
+        await delay();
+        let deployments = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockDeployments"];
+        if (serviceId) {
+            deployments = deployments.filter((d)=>d.serviceId === serviceId);
+        }
+        return deployments.slice(0, 20);
+    },
+    async getDeployment (deploymentId) {
+        await delay();
+        const deployment = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockDeployments"].find((d)=>d.id === deploymentId);
+        if (!deployment) throw new Error('Deployment not found');
+        return deployment;
+    },
+    // Settings APIs
+    async getTenantSettings (tenantId) {
+        await delay();
+        return {
+            tenantId,
+            defaultBranch: 'main',
+            defaultCpuRequest: '100m',
+            defaultMemoryRequest: '128Mi',
+            defaultCpuLimit: '500m',
+            defaultMemoryLimit: '512Mi',
+            namespaceNamingRule: '{tenant}-{service}',
+            jenkinsUrl: 'https://jenkins.yoitang.cloud',
+            ecrRegistry: '123456789.dkr.ecr.ap-northeast-2.amazonaws.com',
+            k3sApiEndpoint: 'https://k3s.yoitang.cloud'
+        };
+    },
+    async updateTenantSettings (tenantId, settings) {
+        await delay(1000);
+        return {
+            tenantId,
+            ...settings,
+            defaultBranch: settings.defaultBranch || 'main',
+            defaultCpuRequest: settings.defaultCpuRequest || '100m',
+            defaultMemoryRequest: settings.defaultMemoryRequest || '128Mi',
+            defaultCpuLimit: settings.defaultCpuLimit || '500m',
+            defaultMemoryLimit: settings.defaultMemoryLimit || '512Mi',
+            namespaceNamingRule: settings.namespaceNamingRule || '{tenant}-{service}',
+            jenkinsUrl: settings.jenkinsUrl || 'https://jenkins.yoitang.cloud',
+            ecrRegistry: settings.ecrRegistry || '123456789.dkr.ecr.ap-northeast-2.amazonaws.com',
+            k3sApiEndpoint: settings.k3sApiEndpoint || 'https://k3s.yoitang.cloud'
+        };
+    },
+    // Environment APIs
+    async getEnvironment (environmentId) {
+        await delay();
+        return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$mockData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mockEnvironments"].find((e)=>e.id === environmentId);
+    },
+    async triggerDeployment (serviceId, environmentId, branch) {
+        await delay(1000);
+        const deployment = {
+            id: `deploy-${Date.now()}`,
+            serviceId,
+            environmentId,
+            commitHash: 'abc123def456',
+            commitMessage: 'Triggered deployment',
+            branch: branch || 'main',
+            status: 'running',
+            triggeredBy: 'manual',
+            startTime: new Date()
+        };
+        return deployment;
+    },
+    async postDeploy (payload) {
+        const res = await fetch('/api/deploy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`Deploy request failed: ${res.status} ${text}`);
+        }
+        return res.json();
+    },
+    // GitHub APIs - Direct calls to GitHub API
+    async getRepoInfo (repoUrl, pat) {
+        // GitHub URL에서 owner와 repo 추출
+        const patterns = [
+            /https:\/\/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?\/?$/,
+            /git@github\.com:([^/]+)\/([^/]+?)(?:\.git)?$/
+        ];
+        let owner = '', repo = '';
+        for (const pattern of patterns){
+            const match = repoUrl.trim().match(pattern);
+            if (match) {
+                owner = match[1];
+                repo = match[2];
+                break;
+            }
+        }
+        if (!owner || !repo) {
+            throw new Error('Invalid GitHub URL format');
+        }
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json'
+        };
+        if (pat) {
+            headers['Authorization'] = `token ${pat}`;
+        }
+        try {
+            // 1. 저장소 정보 조회
+            const repoResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+                headers
+            });
+            if (repoResponse.status === 404) {
+                throw new Error('Repository not found. Check the URL and PAT if it\'s a private repo.');
+            }
+            if (repoResponse.status === 401) {
+                throw new Error('Invalid PAT or authentication failed');
+            }
+            if (!repoResponse.ok) {
+                throw new Error(`GitHub API error: ${repoResponse.statusText}`);
+            }
+            const repoData = await repoResponse.json();
+            const is_private = repoData.private;
+            const defaultBranch = repoData.default_branch;
+            // 2. 브랜치 목록 조회
+            let branches = [
+                defaultBranch
+            ];
+            try {
+                const branchesResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/branches?per_page=100`, {
+                    headers
+                });
+                if (branchesResponse.ok) {
+                    const branchesData = await branchesResponse.json();
+                    branches = branchesData.map((b)=>b.name);
+                    // 기본 브랜치를 맨 앞에 배치
+                    if (branches.includes(defaultBranch)) {
+                        branches = branches.filter((b)=>b !== defaultBranch);
+                        branches.unshift(defaultBranch);
+                    }
+                }
+            } catch (e) {
+                // 브랜치 조회 실패해도 기본 브랜치는 있음
+                console.warn('Failed to fetch branches:', e);
+            }
+            return {
+                is_private,
+                owner,
+                repo,
+                branches
+            };
+        } catch (error) {
+            if (error instanceof Error) {
+                throw error;
+            }
+            throw new Error('Failed to fetch repository information');
+        }
+    },
+    async getBranches (repoUrl, pat) {
+        try {
+            const repoInfo = await this.getRepoInfo(repoUrl, pat);
+            return repoInfo.branches;
+        } catch (error) {
+            throw error;
+        }
+    }
+};
+const __TURBOPACK__default__export__ = api;
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
 "[project]/src/components/wizard/Step2GitSetup.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -3377,11 +4012,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$LanguageContex
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$i18n$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/i18n.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$wizard$2f$PATModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/wizard/PATModal.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/alert.tsx [app-client] (ecmascript)");
-(()=>{
-    const e = new Error("Cannot find module '@/lib/api'");
-    e.code = 'MODULE_NOT_FOUND';
-    throw e;
-})();
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/api.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 ;
@@ -3428,7 +4059,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                     setIsLoadingRepo(true);
                     setRepoError("");
                     try {
-                        const repoInfo = await api.getRepoInfo(gitUrl, pat || undefined);
+                        const repoInfo = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].getRepoInfo(gitUrl, pat || undefined);
                         setIsPrivate(repoInfo.is_private);
                         setBranches(repoInfo.branches);
                         // 기본 브랜치가 현재 선택된 branch에 없으면 첫 번째 브랜치로 변경
@@ -4627,375 +5258,6 @@ _c = Step3Summary;
 const __TURBOPACK__default__export__ = Step3Summary;
 var _c;
 __turbopack_context__.k.register(_c, "Step3Summary");
-if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
-    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
-}
-}),
-"[project]/src/utils/mockData.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
-
-// Mock data for Yoitang Auto Deploy
-// Re-exporting types from @/types for backward compatibility
-__turbopack_context__.s([
-    "calculateDashboardStats",
-    ()=>calculateDashboardStats,
-    "environmentOptions",
-    ()=>environmentOptions,
-    "mockDeploymentHistory",
-    ()=>mockDeploymentHistory,
-    "mockDeployments",
-    ()=>mockDeployments,
-    "mockEnvironments",
-    ()=>mockEnvironments,
-    "mockLogs",
-    ()=>mockLogs,
-    "mockPipelineStages",
-    ()=>mockPipelineStages,
-    "mockServices",
-    ()=>mockServices,
-    "mockTenant",
-    ()=>mockTenant,
-    "simulateDeployment",
-    ()=>simulateDeployment,
-    "teamOptions",
-    ()=>teamOptions,
-    "techStackOptions",
-    ()=>techStackOptions
-]);
-const mockTenant = {
-    id: 'tenant-1',
-    name: 'Team Alpha',
-    description: 'Main development team',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-15')
-};
-const mockServices = [
-    {
-        id: 'service-1',
-        tenantId: 'tenant-1',
-        name: 'Backend API',
-        gitUrl: 'https://github.com/team/backend-api.git',
-        branch: 'main',
-        domainPrefix: 'api-team1',
-        hasBackend: true,
-        hasFrontend: false,
-        createdAt: new Date('2024-01-05'),
-        updatedAt: new Date('2024-01-15'),
-        environments: [
-            {
-                id: 'env-1-dev',
-                serviceId: 'service-1',
-                name: 'Development',
-                type: 'dev',
-                status: 'success',
-                url: 'https://dev-api-team1.yoitang.cloud',
-                lastDeploymentTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
-                healthStatus: 'healthy',
-                commitHash: 'a3f4c21',
-                commitMessage: 'Add authentication endpoints'
-            },
-            {
-                id: 'env-1-prod',
-                serviceId: 'service-1',
-                name: 'Production',
-                type: 'prod',
-                status: 'success',
-                url: 'https://api-team1.yoitang.cloud',
-                lastDeploymentTime: new Date(Date.now() - 5 * 60 * 60 * 1000),
-                healthStatus: 'healthy',
-                commitHash: 'b7e8d92',
-                commitMessage: 'Fix critical bug in payment module'
-            }
-        ]
-    },
-    {
-        id: 'service-2',
-        tenantId: 'tenant-1',
-        name: 'Frontend Dashboard',
-        gitUrl: 'https://github.com/team/frontend-dashboard.git',
-        branch: 'main',
-        domainPrefix: 'dashboard-team1',
-        hasBackend: false,
-        hasFrontend: true,
-        createdAt: new Date('2024-01-08'),
-        updatedAt: new Date('2024-01-15'),
-        environments: [
-            {
-                id: 'env-2-dev',
-                serviceId: 'service-2',
-                name: 'Development',
-                type: 'dev',
-                status: 'deploying',
-                url: 'https://dev-dashboard-team1.yoitang.cloud',
-                lastDeploymentTime: new Date(Date.now() - 10 * 60 * 1000),
-                healthStatus: 'degraded',
-                commitHash: 'c9a1f44',
-                commitMessage: 'UI improvements for deployment view'
-            },
-            {
-                id: 'env-2-staging',
-                serviceId: 'service-2',
-                name: 'Staging',
-                type: 'staging',
-                status: 'success',
-                url: 'https://staging-dashboard-team1.yoitang.cloud',
-                lastDeploymentTime: new Date(Date.now() - 8 * 60 * 60 * 1000),
-                healthStatus: 'healthy',
-                commitHash: 'd2c5e88',
-                commitMessage: 'Merge PR: Add dark mode support'
-            }
-        ]
-    },
-    {
-        id: 'service-3',
-        tenantId: 'tenant-1',
-        name: 'Analytics Service',
-        gitUrl: 'https://github.com/team/analytics-service.git',
-        branch: 'main',
-        domainPrefix: 'analytics-team1',
-        hasBackend: true,
-        hasFrontend: true,
-        createdAt: new Date('2024-01-10'),
-        updatedAt: new Date('2024-01-15'),
-        environments: [
-            {
-                id: 'env-3-prod',
-                serviceId: 'service-3',
-                name: 'Production',
-                type: 'prod',
-                status: 'success',
-                url: 'https://analytics-team1.yoitang.cloud',
-                lastDeploymentTime: new Date(Date.now() - 24 * 60 * 60 * 1000),
-                healthStatus: 'healthy',
-                commitHash: 'e4f6g89',
-                commitMessage: 'Release: Analytics v2.1 with real-time metrics'
-            }
-        ]
-    }
-];
-const mockEnvironments = mockServices.flatMap((s)=>s.environments).map((env)=>({
-        ...env
-    }));
-const mockDeployments = [
-    {
-        id: 'deploy-1',
-        serviceId: 'service-1',
-        environmentId: 'env-1-prod',
-        commitHash: 'b7e8d92',
-        commitMessage: 'Fix critical bug in payment module',
-        branch: 'main',
-        status: 'success',
-        triggeredBy: 'push',
-        startTime: new Date(Date.now() - 5 * 60 * 60 * 1000),
-        endTime: new Date(Date.now() - 5 * 60 * 60 * 1000 + 3 * 60 * 1000),
-        duration: 180
-    },
-    {
-        id: 'deploy-2',
-        serviceId: 'service-2',
-        environmentId: 'env-2-dev',
-        commitHash: 'c9a1f44',
-        commitMessage: 'UI improvements for deployment view',
-        branch: 'develop',
-        status: 'running',
-        triggeredBy: 'push',
-        startTime: new Date(Date.now() - 10 * 60 * 1000)
-    },
-    {
-        id: 'deploy-3',
-        serviceId: 'service-1',
-        environmentId: 'env-1-dev',
-        commitHash: 'a3f4c21',
-        commitMessage: 'Add authentication endpoints',
-        branch: 'develop',
-        status: 'success',
-        triggeredBy: 'manual',
-        startTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        endTime: new Date(Date.now() - 2 * 60 * 60 * 1000 + 2 * 60 * 1000),
-        duration: 120
-    },
-    {
-        id: 'deploy-4',
-        serviceId: 'service-3',
-        environmentId: 'env-3-prod',
-        commitHash: 'e4f6g89',
-        commitMessage: 'Release: Analytics v2.1 with real-time metrics',
-        branch: 'main',
-        status: 'success',
-        triggeredBy: 'push',
-        startTime: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        endTime: new Date(Date.now() - 24 * 60 * 60 * 1000 + 4 * 60 * 1000),
-        duration: 240
-    },
-    {
-        id: 'deploy-5',
-        serviceId: 'service-2',
-        environmentId: 'env-2-staging',
-        commitHash: 'd2c5e88',
-        commitMessage: 'Merge PR: Add dark mode support',
-        branch: 'staging',
-        status: 'success',
-        triggeredBy: 'push',
-        startTime: new Date(Date.now() - 8 * 60 * 60 * 1000),
-        endTime: new Date(Date.now() - 8 * 60 * 60 * 1000 + 2.5 * 60 * 1000),
-        duration: 150
-    }
-];
-const mockDeploymentHistory = [
-    {
-        id: '1',
-        time: '10:32',
-        branch: 'main',
-        status: 'success',
-        commitMessage: 'Fix critical bug in payment module',
-        commitHash: 'b7e8d92'
-    },
-    {
-        id: '2',
-        time: '09:15',
-        branch: 'develop',
-        status: 'success',
-        commitMessage: 'Add authentication endpoints',
-        commitHash: 'a3f4c21'
-    },
-    {
-        id: '3',
-        time: '08:47',
-        branch: 'staging',
-        status: 'success',
-        commitMessage: 'Merge PR: Add dark mode support',
-        commitHash: 'd2c5e88'
-    },
-    {
-        id: '4',
-        time: '어제 18:22',
-        branch: 'main',
-        status: 'failed',
-        commitMessage: 'Database migration',
-        commitHash: 'c5e6f90'
-    }
-];
-const mockPipelineStages = [
-    {
-        id: '1',
-        name: 'Git Clone',
-        status: 'success',
-        duration: '12초'
-    },
-    {
-        id: '2',
-        name: 'Build & Test',
-        status: 'success',
-        duration: '2분 34초'
-    },
-    {
-        id: '3',
-        name: 'Docker Build & Push',
-        status: 'success',
-        duration: '45초'
-    },
-    {
-        id: '4',
-        name: 'k3s Deploy',
-        status: 'running',
-        duration: '1분 12초'
-    },
-    {
-        id: '5',
-        name: 'Health Check',
-        status: 'waiting'
-    }
-];
-const mockLogs = `[2024-01-15 10:32:15] Starting deployment process...
-[2024-01-15 10:32:16] Checking out code from GitHub...
-[2024-01-15 10:32:18] ✓ Code checkout successful
-[2024-01-15 10:32:18] Building Docker image...
-[2024-01-15 10:32:20] Step 1/8 : FROM node:18-alpine
-[2024-01-15 10:32:21] ---> Pulling from library/node
-[2024-01-15 10:32:45] Step 2/8 : WORKDIR /app
-[2024-01-15 10:32:45] ---> Running in 3f2a1b4c5d6e
-[2024-01-15 10:33:12] Step 3/8 : COPY package*.json ./
-[2024-01-15 10:33:13] ---> 7a8b9c0d1e2f
-[2024-01-15 10:33:45] Step 4/8 : RUN npm ci --production
-[2024-01-15 10:34:52] ✓ Docker image built successfully
-[2024-01-15 10:34:53] Pushing image to ECR...
-[2024-01-15 10:35:38] ✓ Image pushed to ECR
-[2024-01-15 10:35:39] Applying k3s configuration...
-[2024-01-15 10:36:20] Creating deployment in k3s...
-[2024-01-15 10:36:51] ✓ Deployment successful`;
-const techStackOptions = [
-    'React',
-    'Vue',
-    'Angular',
-    'Next.js',
-    'Django',
-    'FastAPI',
-    'Express',
-    'NestJS',
-    'PostgreSQL',
-    'MySQL',
-    'MongoDB',
-    'Redis',
-    'Nginx',
-    'Docker',
-    'Kubernetes'
-];
-const teamOptions = [
-    {
-        value: 'tenant-1',
-        label: 'Team Alpha'
-    },
-    {
-        value: 'tenant-2',
-        label: 'Team Beta'
-    },
-    {
-        value: 'tenant-3',
-        label: 'Team Gamma'
-    }
-];
-const environmentOptions = [
-    {
-        value: 'dev',
-        label: 'Development'
-    },
-    {
-        value: 'staging',
-        label: 'Staging'
-    },
-    {
-        value: 'prod',
-        label: 'Production'
-    }
-];
-const calculateDashboardStats = (services)=>{
-    const totalServices = services.length;
-    const totalEnvironments = services.flatMap((s)=>s.environments).length;
-    // Calculate deployments from today
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const deploymentsToday = mockDeployments.filter((d)=>{
-        const deployDate = new Date(d.startTime);
-        deployDate.setHours(0, 0, 0, 0);
-        return deployDate.getTime() === today.getTime();
-    });
-    const successfulToday = deploymentsToday.filter((d)=>d.status === 'success').length;
-    const failedToday = deploymentsToday.filter((d)=>d.status === 'failed').length;
-    const successRate = mockDeployments.length > 0 ? Math.round(mockDeployments.filter((d)=>d.status === 'success').length / mockDeployments.length * 100) : 100;
-    return {
-        totalServices,
-        successfulDeploymentsToday: successfulToday,
-        failedDeploymentsToday: failedToday,
-        deploymentSuccessRate: successRate,
-        activeEnvironments: services.flatMap((s)=>s.environments).filter((e)=>e.status !== 'idle').length,
-        totalDeployments: mockDeployments.length
-    };
-};
-const simulateDeployment = (duration = 2000)=>{
-    return new Promise((resolve)=>{
-        setTimeout(resolve, duration);
-    });
-};
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
@@ -8202,4 +8464,4 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/src/App.tsx [app-clie
 }),
 ]);
 
-//# sourceMappingURL=src_60f7fd80._.js.map
+//# sourceMappingURL=src_d5bcef8a._.js.map
