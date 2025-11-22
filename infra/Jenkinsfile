@@ -313,8 +313,18 @@ spec:
               number: 80
 EOF
 
-        echo "[kubectl] apply 시작"
-        kubectl apply -f k8s/${PREFIX}/
+        echo "[kubectl] apply 시작 (namespace → deploy → svc → ingress 순서)"
+
+        # 1) 네임스페이스 먼저
+        kubectl apply -f k8s/${PREFIX}/namespace.yaml
+
+        # 2) 워크로드/서비스
+        kubectl apply -f k8s/${PREFIX}/deployment.yaml
+        kubectl apply -f k8s/${PREFIX}/service.yaml
+
+        # 3) 인그레스
+        kubectl apply -f k8s/${PREFIX}/ingress.yaml
+
         kubectl get pods -n ${PREFIX}
         '''
       }
