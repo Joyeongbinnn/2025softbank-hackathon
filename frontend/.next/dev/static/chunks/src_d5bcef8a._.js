@@ -4054,11 +4054,10 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, backendStack, frontendStack, useRepoDockerfile, onGitUrlChange, onBranchChange, onDomainPrefixChange, onBackendToggle, onFrontendToggle, onBackendStackChange, onFrontendStackChange, onUseRepoDockerfileChange })=>{
+const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, backendStack, frontendStack, useRepoDockerfile, onGitUrlChange, onBranchChange, onDomainPrefixChange, onBackendToggle, onFrontendToggle, onBackendStackChange, onFrontendStackChange, onUseRepoDockerfileChange, pat, onPatChange })=>{
     _s();
     const { language } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"])();
     const [isPATModalOpen, setIsPATModalOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [pat, setPat] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const [isPrivate, setIsPrivate] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [branches, setBranches] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([
         "main",
@@ -4131,7 +4130,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
         onGitUrlChange(value);
     };
     const handlePATConfirm = (patValue)=>{
-        setPat(patValue);
+        onPatChange(patValue);
         setIsPATModalOpen(false);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4148,7 +4147,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 118,
+                        lineNumber: 121,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4162,7 +4161,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                 className: "text-base"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 120,
+                                lineNumber: 123,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             isLoadingRepo && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4171,18 +4170,18 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                     className: "h-4 w-4 animate-spin text-muted-foreground"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                    lineNumber: 129,
+                                    lineNumber: 132,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 128,
+                                lineNumber: 131,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 119,
+                        lineNumber: 122,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     repoError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Alert"], {
@@ -4192,7 +4191,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                 className: "h-4 w-4 text-red-600"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 135,
+                                lineNumber: 138,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
@@ -4200,19 +4199,19 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                 children: repoError
                             }, void 0, false, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 136,
+                                lineNumber: 139,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 134,
+                        lineNumber: 137,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                lineNumber: 117,
+                lineNumber: 120,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4226,7 +4225,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 144,
+                        lineNumber: 147,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4238,12 +4237,12 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                     placeholder: language === 'ko' ? '브랜치 선택' : language === 'en' ? 'Select branch' : 'ブランチを選択'
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                    lineNumber: 147,
+                                    lineNumber: 150,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 146,
+                                lineNumber: 149,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4252,18 +4251,18 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                         children: b
                                     }, b, false, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 151,
+                                        lineNumber: 154,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)))
                             }, void 0, false, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 149,
+                                lineNumber: 152,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 145,
+                        lineNumber: 148,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     gitUrl && isPrivate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4279,14 +4278,14 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 165,
+                                        lineNumber: 168,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$i18n$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["t"])(language, 'patButton')
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 159,
+                                lineNumber: 162,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             pat && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4297,19 +4296,19 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 169,
+                                lineNumber: 172,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 158,
+                        lineNumber: 161,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                lineNumber: 143,
+                lineNumber: 146,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4323,7 +4322,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 178,
+                        lineNumber: 181,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4334,7 +4333,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                         className: "text-base"
                     }, void 0, false, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 179,
+                        lineNumber: 182,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4342,13 +4341,13 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                         children: language === 'ko' ? '서비스에 할당될 서브도메인 프리픽스입니다 (예: my-service.yoitang.com)' : language === 'en' ? 'Subdomain prefix for your service (e.g., my-service.yoitang.com)' : 'サービスに割り当てられるサブドメインプレフィックス (例: my-service.yoitang.com)'
                     }, void 0, false, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 186,
+                        lineNumber: 189,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                lineNumber: 177,
+                lineNumber: 180,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4361,7 +4360,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 196,
+                        lineNumber: 199,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4378,7 +4377,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                 className: `h-5 w-5 ${hasBackend ? 'text-primary' : 'text-muted-foreground'}`
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 207,
+                                                lineNumber: 210,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4386,7 +4385,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                 children: language === 'ko' ? '백엔드' : language === 'en' ? 'Backend' : 'バックエンド'
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 208,
+                                                lineNumber: 211,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             hasBackend && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -4395,13 +4394,13 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                 children: "On"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 211,
+                                                lineNumber: 214,
                                                 columnNumber: 30
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 206,
+                                        lineNumber: 209,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4409,13 +4408,13 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                         children: language === 'ko' ? 'API 서버 배포' : language === 'en' ? 'Deploy API server' : 'APIサーバーをデプロイ'
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 213,
+                                        lineNumber: 216,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 198,
+                                lineNumber: 201,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -4429,7 +4428,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                 className: `h-5 w-5 ${hasFrontend ? 'text-primary' : 'text-muted-foreground'}`
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 231,
+                                                lineNumber: 234,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4437,7 +4436,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                 children: language === 'ko' ? '프론트엔드' : language === 'en' ? 'Frontend' : 'フロントエンド'
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 232,
+                                                lineNumber: 235,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             hasFrontend && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -4446,13 +4445,13 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                 children: "On"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 235,
+                                                lineNumber: 238,
                                                 columnNumber: 31
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 230,
+                                        lineNumber: 233,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4460,19 +4459,19 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                         children: language === 'ko' ? 'UI 애플리케이션 배포' : language === 'en' ? 'Deploy UI application' : 'UIアプリケーションをデプロイ'
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 237,
+                                        lineNumber: 240,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 222,
+                                lineNumber: 225,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 197,
+                        lineNumber: 200,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4486,7 +4485,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                         children: language === 'ko' ? '고급 설정' : language === 'en' ? 'Advanced' : '詳細設定'
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 249,
+                                        lineNumber: 252,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4498,7 +4497,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                 onChange: (e)=>onUseRepoDockerfileChange(e.target.checked)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 251,
+                                                lineNumber: 254,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4506,19 +4505,19 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                 children: language === 'ko' ? '레포의 Dockerfile 사용' : language === 'en' ? "Use repo's Dockerfile" : 'リポジトリのDockerfileを使用'
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 256,
+                                                lineNumber: 259,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 250,
+                                        lineNumber: 253,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 248,
+                                lineNumber: 251,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             hasBackend && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4528,7 +4527,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                         children: language === 'ko' ? '백엔드 스택 선택' : language === 'en' ? 'Backend Stack' : 'バックエンドスタック'
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 263,
+                                        lineNumber: 266,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4565,7 +4564,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                             children: opt.label
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                            lineNumber: 277,
+                                                            lineNumber: 280,
                                                             columnNumber: 23
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         !opt.enabled && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4573,29 +4572,29 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                             children: language === 'ko' ? '미지원' : language === 'en' ? 'Unavailable' : '未対応'
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                            lineNumber: 278,
+                                                            lineNumber: 281,
                                                             columnNumber: 40
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                    lineNumber: 276,
+                                                    lineNumber: 279,
                                                     columnNumber: 21
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             }, opt.id, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 271,
+                                                lineNumber: 274,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)))
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 264,
+                                        lineNumber: 267,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 262,
+                                lineNumber: 265,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             hasFrontend && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4605,7 +4604,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                         children: language === 'ko' ? '프론트엔드 스택 선택' : language === 'en' ? 'Frontend Stack' : 'フロントエンドスタック'
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 289,
+                                        lineNumber: 292,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4642,7 +4641,7 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                             children: opt.label
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                            lineNumber: 303,
+                                                            lineNumber: 306,
                                                             columnNumber: 23
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         !opt.enabled && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4650,41 +4649,41 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                                                             children: language === 'ko' ? '미지원' : language === 'en' ? 'Unavailable' : '未対応'
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                            lineNumber: 304,
+                                                            lineNumber: 307,
                                                             columnNumber: 40
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                    lineNumber: 302,
+                                                    lineNumber: 305,
                                                     columnNumber: 21
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             }, opt.id, false, {
                                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                                lineNumber: 297,
+                                                lineNumber: 300,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)))
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                        lineNumber: 290,
+                                        lineNumber: 293,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                                lineNumber: 288,
+                                lineNumber: 291,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                        lineNumber: 247,
+                        lineNumber: 250,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                lineNumber: 195,
+                lineNumber: 198,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$wizard$2f$PATModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -4693,17 +4692,17 @@ const Step2GitSetup = ({ gitUrl, branch, domainPrefix, hasBackend, hasFrontend, 
                 onConfirm: handlePATConfirm
             }, void 0, false, {
                 fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-                lineNumber: 315,
+                lineNumber: 318,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/wizard/Step2GitSetup.tsx",
-        lineNumber: 116,
+        lineNumber: 119,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(Step2GitSetup, "vHjaJ7hiL0LzKtN1/+pz2S+5oE8=", false, function() {
+_s(Step2GitSetup, "kVFhuza9KIVQkhVEaALVwoSlQEE=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]
     ];
@@ -5356,6 +5355,7 @@ const NewProject = ()=>{
     const [backendStack, setBackendStack] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     const [frontendStack, setFrontendStack] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     const [useRepoDockerfile, setUseRepoDockerfile] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [gitPat, setGitPat] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const validateStep = ()=>{
         if (currentStep === 1) {
             if (!projectName || !teamName) {
@@ -5394,7 +5394,8 @@ const NewProject = ()=>{
                 git_repo: gitUrl,
                 branch: branch,
                 use_repo_dockerfile: useRepoDockerfile,
-                frontend_stack: hasFrontend ? frontendStack : undefined
+                frontend_stack: hasFrontend ? frontendStack : undefined,
+                git_pat: gitPat || undefined
             });
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success(language === 'ko' ? '배포가 시작되었습니다! 🎉' : language === 'en' ? 'Deployment started! 🎉' : 'デプロイが開始されました! 🎉', {
                 id: 'deploy'
@@ -5418,7 +5419,7 @@ const NewProject = ()=>{
                     onTeamNameChange: setTeamName
                 }, void 0, false, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 135,
+                    lineNumber: 139,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0));
             case 2:
@@ -5438,10 +5439,12 @@ const NewProject = ()=>{
                     onFrontendToggle: ()=>setHasFrontend(!hasFrontend),
                     onBackendStackChange: setBackendStack,
                     onFrontendStackChange: setFrontendStack,
-                    onUseRepoDockerfileChange: setUseRepoDockerfile
+                    onUseRepoDockerfileChange: setUseRepoDockerfile,
+                    pat: gitPat,
+                    onPatChange: setGitPat
                 }, void 0, false, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 144,
+                    lineNumber: 148,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0));
             case 3:
@@ -5458,7 +5461,7 @@ const NewProject = ()=>{
                     useRepoDockerfile: useRepoDockerfile
                 }, void 0, false, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 165,
+                    lineNumber: 171,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0));
             default:
@@ -5479,14 +5482,14 @@ const NewProject = ()=>{
                             className: "h-4 w-4 mr-2"
                         }, void 0, false, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 191,
+                            lineNumber: 197,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$i18n$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["t"])(language, 'backToDashboard')
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 186,
+                    lineNumber: 192,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5500,7 +5503,7 @@ const NewProject = ()=>{
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$i18n$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["t"])(language, 'createNewService')
                                 }, void 0, false, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 198,
+                                    lineNumber: 204,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5508,13 +5511,13 @@ const NewProject = ()=>{
                                     children: language === 'ko' ? '새로운 서비스를 생성하고 자동 배포를 시작합니다' : language === 'en' ? 'Create a new service and start automatic deployment' : '新しいサービスを作成し、自動デプロイを開始します'
                                 }, void 0, false, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 199,
+                                    lineNumber: 205,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 197,
+                            lineNumber: 203,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$wizard$2f$StepIndicator$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -5522,7 +5525,7 @@ const NewProject = ()=>{
                             currentStep: currentStep
                         }, void 0, false, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 209,
+                            lineNumber: 215,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -5531,12 +5534,12 @@ const NewProject = ()=>{
                                 children: renderStep()
                             }, void 0, false, {
                                 fileName: "[project]/src/views/NewProject.tsx",
-                                lineNumber: 213,
+                                lineNumber: 219,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 212,
+                            lineNumber: 218,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5552,14 +5555,14 @@ const NewProject = ()=>{
                                             className: "h-4 w-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/src/views/NewProject.tsx",
-                                            lineNumber: 224,
+                                            lineNumber: 230,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         language === 'ko' ? '이전' : language === 'en' ? 'Previous' : '前へ'
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 218,
+                                    lineNumber: 224,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 currentStep < STEPS.length ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -5571,13 +5574,13 @@ const NewProject = ()=>{
                                             className: "h-4 w-4 ml-2"
                                         }, void 0, false, {
                                             fileName: "[project]/src/views/NewProject.tsx",
-                                            lineNumber: 231,
+                                            lineNumber: 237,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 229,
+                                    lineNumber: 235,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                     onClick: handleDeploy,
@@ -5588,41 +5591,41 @@ const NewProject = ()=>{
                                             className: "h-4 w-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/src/views/NewProject.tsx",
-                                            lineNumber: 239,
+                                            lineNumber: 245,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         isDeploying ? language === 'ko' ? '배포 중...' : language === 'en' ? 'Deploying...' : 'デプロイ中...' : (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$i18n$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["t"])(language, 'deploy')
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/views/NewProject.tsx",
-                                    lineNumber: 234,
+                                    lineNumber: 240,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/views/NewProject.tsx",
-                            lineNumber: 217,
+                            lineNumber: 223,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/views/NewProject.tsx",
-                    lineNumber: 195,
+                    lineNumber: 201,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/src/views/NewProject.tsx",
-            lineNumber: 185,
+            lineNumber: 191,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/src/views/NewProject.tsx",
-        lineNumber: 184,
+        lineNumber: 190,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(NewProject, "ZVD3aRP7IrdCqXCN/vgL8AD+GnU=", false, function() {
+_s(NewProject, "xNcbFJnmloZha5O6/61vGO77eRI=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$router$2f$dist$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["useNavigate"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$LanguageContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLanguage"]

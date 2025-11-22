@@ -266,9 +266,9 @@ const Step2GitSetup = ({
               <Label className="mb-2">{language === 'ko' ? '백엔드 스택 선택' : language === 'en' ? 'Backend Stack' : 'バックエンドスタック'}</Label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { id: 'spring', label: 'Spring Boot (Java 17 + Gradle)', enabled: true },
+                  { id: 'spring', label: 'Spring Boot (Java 17 + Gradle)', enabled: false },
                   { id: 'django', label: 'Django (Python 3.11)', enabled: false },
-                  { id: 'node-express', label: 'Node.js (Express)', enabled: true },
+                  { id: 'node-express', label: 'Node.js (Express)', enabled: false },
                   { id: 'fastapi', label: 'FastAPI', enabled: false },
                 ].map((opt) => (
                   <Card
@@ -293,9 +293,9 @@ const Step2GitSetup = ({
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { id: 'react-vite', label: 'React (Vite/CRA)', enabled: true },
-                  { id: 'next', label: 'Next.js', enabled: true },
+                  { id: 'next', label: 'Next.js', enabled: false },
                   { id: 'vue', label: 'Vue (Vite)', enabled: false },
-                  { id: 'static', label: 'Static HTML (Nginx)', enabled: true },
+                  { id: 'static', label: 'Static HTML (Nginx)', enabled: false },
                 ].map((opt) => (
                   <Card
                     key={opt.id}
