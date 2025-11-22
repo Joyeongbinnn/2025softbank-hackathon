@@ -195,12 +195,23 @@ export const api = {
   },
 
   async postDeploy(payload: any): Promise<any> {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `${window.location.origin}/api`
-    const res = await fetch(`${apiUrl}/deploy`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
+    // Use NEXT_PUBLIC_API_BASE when provided so frontend dev server (localhost)
+    // can call the actual backend without relying on a proxy.
+    const API_BASE = String(((globalThis as any)?.process?.env?.NEXT_PUBLIC_API_BASE) || '').replace(/\/$/, '')
+    const url = API_BASE ? `${API_BASE}/api/deploy` : '/api/deploy'
+
+    let res: Response
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+    } catch (e) {
+      // 네트워크/혼합콘텐츠 등으로 fetch 자체가 실패할 경우 자세한 원인을 던집니다
+      if (e instanceof Error) throw new Error(`Network error when posting deploy: ${e.message}`)
+      throw new Error('Unknown network error when posting deploy')
+    }
 
     if (!res.ok) {
       const text = await res.text()
