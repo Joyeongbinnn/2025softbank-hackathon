@@ -60,18 +60,10 @@ pipeline {
       }
       post {
         success {
-          sh '''
-          curl -X POST https://backend/deploy/log/receive \
-            -H "Content-Type: application/json" \
-            -d '{"stage":"Checkout","status":"success","prefix":"'"${params.PREFIX}"'","build_number":'"${env.BUILD_NUMBER}"'}'
-          '''
+          sh "curl -X POST https://backend/deploy/log/receive -H 'Content-Type: application/json' -d '{\"stage\":\"Checkout\",\"status\":\"success\",\"prefix\":\"${params.PREFIX}\",\"build_number\":${env.BUILD_NUMBER}}'"
         }
         failure {
-          sh '''
-          curl -X POST https://backend/deploy/log/receive \
-            -H "Content-Type: application/json" \
-            -d '{"stage":"Checkout","status":"fail","prefix":"'"${params.PREFIX}"'","build_number":'"${env.BUILD_NUMBER}"'}'
-          '''
+          sh "curl -X POST https://backend/deploy/log/receive -H 'Content-Type: application/json' -d '{\"stage\":\"Checkout\",\"status\":\"fail\",\"prefix\":\"${params.PREFIX}\",\"build_number\":${env.BUILD_NUMBER}}'"
         }
       }
     }      
