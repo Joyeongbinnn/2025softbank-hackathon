@@ -1,5 +1,4 @@
 from sqlalchemy import Column, BigInteger, String, Boolean, DateTime
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database.yoitang import Base
 
@@ -12,5 +11,3 @@ class User(Base):
     is_active = Column(Boolean, default=False, nullable=False)
     created_date = Column(DateTime, server_default=func.now(), nullable=False)
     updated_date = Column(DateTime, onupdate=func.now(), nullable=True)
-
-    services = relationship("Service", back_populates="owner")

@@ -1,5 +1,4 @@
 from sqlalchemy import Column, BigInteger, Text, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database.yoitang import Base
 
@@ -13,6 +12,3 @@ class Service(Base):
     git_repo = Column(Text, nullable=False)
     created_date = Column(DateTime, server_default=func.now(), nullable=False)
     updated_date = Column(DateTime, onupdate=func.now(), nullable=True)
-
-    user = relationship("User", back_populates="services")
-    deploys = relationship("Deploy", back_populates="service")

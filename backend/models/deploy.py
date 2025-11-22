@@ -1,6 +1,5 @@
 import enum
 from sqlalchemy import Column, BigInteger, Text, String, DateTime, ForeignKey, Enum
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database.yoitang import Base
 
@@ -21,6 +20,3 @@ class Deploy(Base):
     status = Column(Enum(DeployStatus), default=DeployStatus.IN_PROGRESS, nullable=False)
     created_date = Column(DateTime, server_default=func.now(), nullable=False)
     updated_date = Column(DateTime, onupdate=func.now(), nullable=True)
-
-    service = relationship("Service", back_populates="deploys")
-    logs = relationship("Log", back_populates="deploy")
