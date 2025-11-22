@@ -2,11 +2,9 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from typing import List
 from schemas.deploy import DeployRequest, DeployResponse
-from schemas.log import LogUpdate # Import LogUpdate
 from core.jenkins_client import JenkinsClient
 from crud.deploy import get_deploy, get_deploys_by_user_id
 from database.yoitang import get_db
-from core.ws_manager import manager # Import WebSocketManager instance
 
 router = APIRouter()
 
@@ -65,18 +63,3 @@ async def get_single_deploy(deploy_id: int, db: Session = Depends(get_db)):
 async def get_user_deploys(user_id: int, db: Session = Depends(get_db)):
     deploys = get_deploys_by_user_id(db, user_id)
     return deploys
-
-@router.post("/log/{deploy_id}", summary="Jenkins 로그 수신 및 브로드캐스트")
-async def receive_jenkins_log(
-    deploy_id: int,
-    log_update: LogUpdate,
-    db: Session = Depends(get_db)
-):
-    # Broadcast log to WebSocket clients
-    await manager.broadcast(deploy_id, f"[{log_update.stage}] {log_update.log}")
-
-    # For now, we are not saving to the database as per user's request.
-    # If saving to DB is needed later, uncomment and implement append_deploy_log
-    # append_deploy_log(db, deploy_id, log_update.log)
-
-    return {"message": "Log received and broadcasted"}

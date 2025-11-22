@@ -46,56 +46,16 @@ pipeline {
     )
   }
 
-  // 공통 함수: 한 줄씩 로그 전송하며 명령 실행
-  def sendLogAndExec(stageName, deployId, backendUrl, command) {
-    sh "curl -X POST -H \"Content-Type: application/json\" -d '{\"log\": \"[${stageName}] START\", \"stage\": \"${stageName}\"}' \"${backendUrl}/${deployId}\""
-
-    sh """
-      BACKEND_URL="${backendUrl}"
-      DEPLOY_ID="${deployId}"
-      STAGE_NAME="${stageName}"
-      STATUS_FILE=\$(mktemp)
-
-      {
-        bash -c "
-          set -e
-          ${command}
-        "; echo \$? > "\$STATUS_FILE";
-      } 2>&1 | while IFS= read -r line; do
-        echo "\$line"
-        escaped_line=\$(echo "\$line" | sed 's/\\\\/\\\\\\\\/g; s/\\"/\\\\\\"/g')
-        curl -s -X POST -H "Content-Type: application/json" \
-             -d "{\\"log\\": \\"\$escaped_line\\", \\"stage\\": \\"\$STAGE_NAME\\"}" \
-             "\${BACKEND_URL}/\${DEPLOY_ID}" || echo "Failed to send log line for \$STAGE_NAME" >&2
-      done
-
-      COMMAND_EXIT_CODE=\$(cat "\$STATUS_FILE")
-      rm "\$STATUS_FILE"
-      if [ "\$COMMAND_EXIT_CODE" -ne 0 ]; then exit "\$COMMAND_EXIT_CODE"; fi
-    """
-
-    sh "curl -X POST -H \"Content-Type: application/json\" -d '{\"log\": \"[${stageName}] END\", \"stage\": \"${stageName}\"}' \"${backendUrl}/${deployId}\""
-  }
-
   stages {
 
     // 1) 팀 레포를 app/ 아래에 체크아웃
     stage('Checkout') {
       steps {
         dir('app') {
-          script {
-            sendLogAndExec(
-              "Checkout",
-              env.BUILD_NUMBER,
-              "https://www.yoitang.cloud/api/deploy/log",
-              """
-              deleteDir()
-              git branch: '${params.BRANCH}', url: '${params.GIT_REPO}'
-              echo "[Checkout] app 디렉터리 구조"
-              ls -R
-              """
-            )
-          }
+          deleteDir()
+          echo "[Checkout] ${params.GIT_REPO} (${params.BRANCH})"
+          git branch: params.BRANCH, url: params.GIT_REPO
+          sh 'echo "[Checkout] app 디렉터리 구조"; ls -R'
         }
       }
     }
@@ -104,38 +64,38 @@ pipeline {
     stage('Install deps & ESLint') {
       steps {
         dir('app/frontend') {
-          script {
-            sendLogAndExec(
-              "Install",
-              env.BUILD_NUMBER,
-              "https://www.yoitang.cloud/api/deploy/log",
-              """
-              if [ ! -d . ]; then
-                echo "[ERROR] frontend 디렉터리가 없습니다."
-                exit 1
-              fi
+          sh '''
+          if [ ! -d . ]; then
+            echo "[ERROR] frontend 디렉터리가 없습니다. 레포 구조를 확인하세요."
+            exit 1
+          fi
 
-              if [ -f package.json ]; then
-                echo "[Node] package.json 발견"
-                if [ -f package-lock.json ]; then
-                  if ! npm ci; then
-                    echo "[WARN] npm ci 실패 → npm install 폴백"
-                    npm install
-                  fi
-                else
-                  npm install
-                fi
+          if [ -f package.json ]; then
+            echo "[Node] package.json 발견"
 
-                if npx eslint --version >/dev/null 2>&1; then
-                  npx eslint . || exit 1
-                fi
-              else
-                echo "[ERROR] package.json 없음"
-                exit 1
+            if [ -f package-lock.json ]; then
+              echo "[Node] package-lock.json 발견 → npm ci 시도"
+              if ! npm ci; then
+                echo "[WARN] npm ci 실패 → npm install 로 폴백"
+                npm install
               fi
-              """
-            )
-          }
+            else
+              echo "[Node] package-lock.json 없음 → npm install 실행"
+              npm install
+            fi
+
+            if npx eslint --version >/dev/null 2>&1; then
+              echo "[ESLint] lint 실행"
+              npx eslint . || exit 1
+            else
+              echo "[ESLint] eslint 설정 없음 → 스킵"
+            fi
+          else
+            echo "[ERROR] frontend 디렉터리에 package.json 이 없습니다."
+            ls -al
+            exit 1
+          fi
+          '''
         }
       }
     }
@@ -143,72 +103,76 @@ pipeline {
     // 3) ECR 로그인 (Kaniko에서 쓸 도커 config)
     stage('ECR Login (Kaniko용)') {
       steps {
-        script {
-          sendLogAndExec(
-            "ECR Login",
-            env.BUILD_NUMBER,
-            "https://www.yoitang.cloud/api/deploy/log",
-            """
-            mkdir -p ${DOCKER_CONFIG}
-            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-            """
-          )
-        }
+        sh '''
+        mkdir -p ${DOCKER_CONFIG}
+        echo "[ECR] docker login 시작"
+
+        aws ecr get-login-password --region ${AWS_REGION} \
+          | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+        '''
       }
     }
 
     // 4) ECR 리포지토리 존재 보장 (없으면 생성)
     stage('Ensure ECR Repositories') {
       steps {
-        script {
-          sendLogAndExec(
-            "Ensure ECR",
-            env.BUILD_NUMBER,
-            "https://www.yoitang.cloud/api/deploy/log",
-            """
-            if ! aws ecr describe-repositories --repository-names ${ECR_REPO} --region ${AWS_REGION} >/dev/null 2>&1; then
-              aws ecr create-repository --repository-name ${ECR_REPO} --region ${AWS_REGION}
-            fi
-            """
-          )
-        }
+        sh '''
+        echo "[ECR] 리포지토리 존재 여부 확인 및 없으면 생성"
+
+        # 메인 이미지 리포
+        if ! aws ecr describe-repositories \
+              --repository-names ${ECR_REPO} \
+              --region ${AWS_REGION} >/dev/null 2>&1; then
+          echo "[ECR] ${ECR_REPO} 리포지토리가 없어 생성합니다."
+          aws ecr create-repository \
+            --repository-name ${ECR_REPO} \
+            --region ${AWS_REGION}
+        else
+          echo "[ECR] ${ECR_REPO} 리포지토리 이미 존재"
+        fi
+
+        '''
       }
     }
 
     // 5) 플랫폼이 관리하는 Dockerfile 생성 (frontend/ 안에)
     stage('Generate Dockerfile (managed)') {
-      when { expression { !params.USE_REPO_DOCKERFILE } }
+      when {
+        expression { return !params.USE_REPO_DOCKERFILE }
+      }
       steps {
         dir('app/frontend') {
-          script {
-            sendLogAndExec(
-              "Generate Dockerfile",
-              env.BUILD_NUMBER,
-              "https://www.yoitang.cloud/api/deploy/log",
-              """
-              case '${params.FRONTEND_STACK}' in
-                react-vite)
-                  cat > Dockerfile << 'EOF'
+          sh '''
+          echo "[Dockerfile] 플랫폼 관리 Dockerfile 생성 시작 (frontend 기준)"
+
+          case "${FRONTEND_STACK}" in
+            react-vite)
+              cat > Dockerfile << 'EOF'
 FROM node:20-alpine AS builder
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
+
 COPY . .
 RUN npm run build
+
 FROM nginx:1.27-alpine
 COPY --from=builder /app/build /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 EOF
-                  ;;
-                *)
-                  echo "[ERROR] 지원하지 않는 FRONTEND_STACK"
-                  exit 1
-                  ;;
-              esac
-              """
-            )
-          }
+              ;;
+            *)
+              echo "[ERROR] 지원하지 않는 FRONTEND_STACK: ${FRONTEND_STACK}"
+              exit 1
+              ;;
+          esac
+
+          echo "[Dockerfile] 생성 완료:"
+          pwd
+          ls -al Dockerfile
+          '''
         }
       }
     }
@@ -222,24 +186,36 @@ EOF
         }
 
         dir('app/frontend') {
-          script {
-            sendLogAndExec(
-              "Kaniko Build & Push",
-              env.BUILD_NUMBER,
-              "https://www.yoitang.cloud/api/deploy/log",
-              """
-              if [ ! -f Dockerfile ]; then
-                echo "[ERROR] Dockerfile 없음"; exit 1
-              fi
-              HOST_JENKINS_HOME="/home/ubuntu/2025softbank-hackathon/infra/jenkins_home"
-              docker run --rm -v \${HOST_JENKINS_HOME}/workspace/yoitang-autodeploy/app/frontend:/workspace -v \${HOST_JENKINS_HOME}/.docker:/kaniko/.docker -w /workspace ${KANIKO_IMAGE} --context /workspace --dockerfile Dockerfile --destination ${env.IMAGE_FULL} --single-snapshot
-              """
-            )
-          }
+          sh '''
+          set -e
+
+          if [ ! -f Dockerfile ]; then
+            echo "[ERROR] frontend 디렉터리에 Dockerfile 이 없습니다."
+            pwd
+            ls -al
+            exit 1
+          fi
+
+          echo "[Kaniko] 이미지 빌드 & 푸시 → ${IMAGE_FULL}"
+          echo "[Kaniko] HOST PWD=$(pwd)"
+          ls -al
+
+          # 호스트 기준 Jenkins 홈 경로 (docker inspect .Source에서 가져온 값)
+          HOST_JENKINS_HOME="/home/ubuntu/2025softbank-hackathon/infra/jenkins_home"
+
+          docker run --rm \
+            -v ${HOST_JENKINS_HOME}/workspace/yoitang-autodeploy/app/frontend:/workspace \
+            -v ${HOST_JENKINS_HOME}/.docker:/kaniko/.docker \
+            -w /workspace \
+            ${KANIKO_IMAGE} \
+              --context /workspace \
+              --dockerfile Dockerfile \
+              --destination ${IMAGE_FULL} \
+              --single-snapshot \
+          '''
         }
       }
     }
-
 /*
     // 7) Trivy 이미지 스캔
     stage('Trivy Scan') {
@@ -261,66 +237,65 @@ EOF
      // 8) K8s 매니페스트 생성 & 배포 + ECR Secret 연동
     stage('Generate K8s Manifests & Deploy') {
       steps {
-        script {
-          sendLogAndExec(
-            "K8s Deploy",
-            env.BUILD_NUMBER,
-            "https://www.yoitang.cloud/api/deploy/log",
-            """
-            set -e
-            mkdir -p k8s/${params.PREFIX}
-            PREFIX=${params.PREFIX}
+        sh '''
+        set -e
+        echo "[K8s] 매니페스트 생성 시작 → prefix=${PREFIX}"
+        mkdir -p k8s/${PREFIX}
 
-            cat <<EOF > k8s/\${PREFIX}/namespace.yaml
+        # 1) Namespace
+        cat <<EOF > k8s/${PREFIX}/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: \${PREFIX}
+  name: ${PREFIX}
 EOF
 
-            cat <<EOF > k8s/\${PREFIX}/deployment.yaml
+        # 2) Deployment
+        cat <<EOF > k8s/${PREFIX}/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: \${PREFIX}-frontend-deploy
-  namespace: \${PREFIX}
+  name: ${PREFIX}-frontend-deploy
+  namespace: ${PREFIX}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: \${PREFIX}-frontend
+      app: ${PREFIX}-frontend
   template:
     metadata:
       labels:
-        app: \${PREFIX}-frontend
+        app: ${PREFIX}-frontend
     spec:
       containers:
       - name: frontend
-        image: ${env.IMAGE_FULL}
+        image: ${IMAGE_FULL}
         ports:
         - containerPort: 80
 EOF
 
-            cat <<EOF > k8s/\${PREFIX}/service.yaml
+        # 3) Service
+        cat <<EOF > k8s/${PREFIX}/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: \${PREFIX}-frontend-svc
-  namespace: \${PREFIX}
+  name: ${PREFIX}-frontend-svc
+  namespace: ${PREFIX}
 spec:
   selector:
-    app: \${PREFIX}-frontend
+    app: ${PREFIX}-frontend
   ports:
   - port: 80
     targetPort: 80
 EOF
 
-            cat <<EOF > k8s/\${PREFIX}/ingress.yaml
+        # 4) Ingress
+        cat <<EOF > k8s/${PREFIX}/ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: \${PREFIX}-ing
-  namespace: \${PREFIX}
+  name: ${PREFIX}-ing
+  namespace: ${PREFIX}
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -328,36 +303,49 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - \${PREFIX}.yoitang.cloud
-    secretName: \${PREFIX}-tls
+    - ${PREFIX}.yoitang.cloud
+    secretName: ${PREFIX}-tls
   rules:
-  - host: \${PREFIX}.yoitang.cloud
+  - host: ${PREFIX}.yoitang.cloud
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: \${PREFIX}-frontend-svc
+            name: ${PREFIX}-frontend-svc
             port:
               number: 80
 EOF
 
-            kubectl apply -f k8s/\${PREFIX}/namespace.yaml
+        echo "[kubectl] apply 시작 (namespace → ecr secret → sa patch → deploy → svc → ingress 순서)"
 
-            PASSWORD=$(aws ecr get-login-password --region ${AWS_REGION})
-            kubectl create secret docker-registry ecr --docker-server=${ECR_REGISTRY} --docker-username=AWS --docker-password="\${PASSWORD}" -n \${PREFIX} --dry-run=client -o yaml | kubectl apply -f -
+        # 1) 네임스페이스 먼저
+        kubectl apply -f k8s/${PREFIX}/namespace.yaml
 
-            kubectl patch serviceaccount default -n \${PREFIX} -p '{"imagePullSecrets":[{"name":"ecr"}]}' || echo "default SA patch 실패"
+        # 2) ECR Secret 생성/갱신 (팀 네임스페이스용)
+        PASSWORD=$(aws ecr get-login-password --region ${AWS_REGION})
 
-            kubectl apply -f k8s/\${PREFIX}/deployment.yaml
-            kubectl apply -f k8s/\${PREFIX}/service.yaml
-            kubectl apply -f k8s/\${PREFIX}/ingress.yaml
+        kubectl create secret docker-registry ecr \
+          --docker-server=${ECR_REGISTRY} \
+          --docker-username=AWS \
+          --docker-password="${PASSWORD}" \
+          -n ${PREFIX} \
+          --dry-run=client -o yaml | kubectl apply -f -
 
-            kubectl get pods -n \${PREFIX}
-            """
-          )
-        }
+        # 3) default ServiceAccount에 imagePullSecrets 연결 (이미 있어도 덮어씀)
+        kubectl patch serviceaccount default -n ${PREFIX} \
+          -p '{"imagePullSecrets":[{"name":"ecr"}]}' || \
+          echo "[K8s] default SA patch 실패 (이미 설정되었을 수 있음)"
+
+        # 4) 워크로드/서비스/인그레스 생성
+        kubectl apply -f k8s/${PREFIX}/deployment.yaml
+        kubectl apply -f k8s/${PREFIX}/service.yaml
+        kubectl apply -f k8s/${PREFIX}/ingress.yaml
+
+        # 5) 상태 확인
+        kubectl get pods -n ${PREFIX}
+        '''
       }
     }
 
