@@ -59,19 +59,19 @@ pipeline {
             git clone -b ${params.BRANCH} ${params.GIT_REPO} . | while IFS= read -r line; do
               curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive \\
                    -H "Content-Type: application/json" \\
-                   -d '{"stage":"Checkout","message":"'\$line'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
+                   -d '{"stage":"Checkout","message":"'"\$line"'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
             done
 
             echo "app 디렉터리 구조" | while IFS= read -r line; do
               curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive \\
                    -H "Content-Type: application/json" \\
-                   -d '{"stage":"Checkout","message":"'\$line'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
+                   -d '{"stage":"Checkout","message":"'"\$line"'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
             done
 
             ls -R | while IFS= read -r line; do
               curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive \\
                    -H "Content-Type: application/json" \\
-                   -d '{"stage":"Checkout","message":"'\$line'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
+                   -d '{"stage":"Checkout","message":"'"\$line"'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
             done
           """
         }
