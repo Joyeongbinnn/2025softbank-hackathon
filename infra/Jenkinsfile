@@ -55,7 +55,7 @@ pipeline {
   stages {
 
     // 1) 팀 레포를 app/ 아래에 체크아웃
-        stage('Checkout') {
+    stage('Checkout') {
       steps {
         dir('app') {
           deleteDir()
@@ -85,6 +85,7 @@ pipeline {
         }
       }
     }
+
 
   
 
