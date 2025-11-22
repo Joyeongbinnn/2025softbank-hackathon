@@ -74,7 +74,7 @@ class DeployLog(BaseModel):
     build_number: int
     deploy_id: Optional[str] = None  # 선택적으로 사용 가능
 
-@app.post("/log/receive", summary="Jenkins로부터 배포 로그 수신")
+@router.post("/log/receive", summary="Jenkins로부터 배포 로그 수신")
 async def receive_deploy_log(log: DeployLog):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     deploy_id = log.deploy_id if log.deploy_id else "None"
