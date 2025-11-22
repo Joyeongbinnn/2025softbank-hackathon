@@ -23,3 +23,4 @@ class Deploy(Base):
     updated_date = Column(DateTime, onupdate=func.now(), nullable=True)
 
     service = relationship("Service", back_populates="deploys")
+    logs = relationship("Log", back_populates="deploy")
