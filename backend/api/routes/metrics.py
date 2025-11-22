@@ -124,18 +124,34 @@ def _sum_namespace_cost_from_allocation(resp: Dict[str, Any], namespace: str) ->
     Kubecost Allocation 응답 형식:
       { "code": 200, "data": [ { "<ns>": { totalCost: ... }, "__idle__": {...}, ... }, ... ] }
     에서 해당 namespace의 totalCost 합산
+
+    - data 리스트 안에 None 이나 dict 가 아닌 값이 섞여 있을 수 있으므로 방어 코드 추가
+    - 나중에 구조가 바뀌면 여기서 한 번만 수정하면 됨
     """
     total = 0.0
     data_list = resp.get("data", [])
+
     for bucket in data_list:
-        # bucket 예: { "team1": { totalCost: ... }, "__idle__": {...}, ... }
-        ns_obj = bucket.get(namespace)
+        if not isinstance(bucket, dict):
+            continue
+
+        # 1) 구버전 형태: { "team1": { ... }, "__idle__": {...}, ... }
+        if namespace in bucket:
+            ns_obj = bucket.get(namespace)
+        # 2) 혹시 신버전 형태: { "allocations": { "team1": { ... }, ... } }
+        elif isinstance(bucket.get("allocations"), dict):
+            ns_obj = bucket["allocations"].get(namespace)
+        else:
+            ns_obj = None
+
         if not ns_obj:
             continue
+
         try:
             total += float(ns_obj.get("totalCost", 0.0))
         except (TypeError, ValueError):
             continue
+
     return total
 
 
@@ -181,16 +197,24 @@ async def get_namespace_top_workloads(
         namespace=None,  # aggregation에 namespace 포함되어 있으니 여기선 전체 받아서 properties.namespace로 필터
     )
 
-    data_list = alloc.get("data", [])
+    data_list = alloc.get("data") or []
 
     # 워크로드 이름별로 값 합산
     agg: Dict[str, Dict[str, float]] = {}
 
     for bucket in data_list:
+        # None 이나 dict 아닌 값은 스킵
+        if not isinstance(bucket, dict):
+            continue
+
         # bucket: { "<name>": { ... allocation ... }, ... }
         for alloc_name, alloc_obj in bucket.items():
             # idle/unallocated 등은 스킵
             if alloc_name in ("__idle__", "__unallocated__", "__unmounted__"):
+                continue
+
+            # alloc_obj 가 dict 가 아니면 스킵
+            if not isinstance(alloc_obj, dict):
                 continue
 
             props = alloc_obj.get("properties") or {}
