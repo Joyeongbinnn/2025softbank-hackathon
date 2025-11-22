@@ -42,6 +42,27 @@ export interface Environment {
   commitMessage?: string
 }
 
+export interface ServiceInfo {
+  service_id: number
+  user_id: number
+  name: string
+  domain: string
+  git_repo: string
+  created_date: string
+  updated_date: string
+}
+
+export interface DeploymentHistory {
+  deploy_id: number
+  service_id: number
+  git_branch: string
+  commit_id: string
+  commit_message: string
+  status: string
+  created_date: string
+  updated_date: string
+}
+
 export interface Deployment {
   id: string
   serviceId: string

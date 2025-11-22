@@ -9,6 +9,8 @@ import {
   Tenant,
   TenantSettings,
   CreateServicePayload,
+  ServiceInfo,
+  DeploymentHistory,
 } from '@/types'
 import {
   mockTenant,
@@ -340,6 +342,80 @@ export const api = {
     } catch (error) {
       throw error
     }
+  },
+
+  // Service APIs - Backend integration
+  async getServicesByUserId(userId: number): Promise<ServiceInfo[]> {
+    const API_BASE = 'https://www.yoitang.cloud/api'
+    const url = `${API_BASE}/service/user/${userId}`
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`Failed to fetch services: ${response.status} ${text}`)
+    }
+
+    const data = await response.json()
+    // 백엔드에서 datetime을 ISO 문자열로 변환하여 반환하므로 그대로 사용
+    return data.map((service: any) => ({
+      service_id: service.service_id,
+      user_id: service.user_id,
+      name: service.name,
+      domain: service.domain,
+      git_repo: service.git_repo,
+      created_date: typeof service.created_date === 'string' 
+        ? service.created_date 
+        : new Date(service.created_date).toISOString(),
+      updated_date: service.updated_date 
+        ? (typeof service.updated_date === 'string' 
+          ? service.updated_date 
+          : new Date(service.updated_date).toISOString())
+        : service.created_date,
+    }))
+  },
+
+  // Deployment APIs - Backend integration
+  async getDeploymentsByServiceId(serviceId: number): Promise<DeploymentHistory[]> {
+    const API_BASE = 'https://www.yoitang.cloud/api'
+    const url = `${API_BASE}/deploy/service/${serviceId}`
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`Failed to fetch deployments: ${response.status} ${text}`)
+    }
+
+    const data = await response.json()
+    // 백엔드 응답을 DeploymentHistory 형식으로 변환
+    return data.map((deployment: any) => ({
+      deploy_id: deployment.deploy_id,
+      service_id: deployment.service_id,
+      git_branch: deployment.git_branch,
+      commit_id: deployment.commit_id,
+      commit_message: deployment.commit_message,
+      // API는 "SUCCESS"를 반환하지만 컴포넌트는 "success"를 기대하므로 소문자로 변환
+      status: deployment.status?.toLowerCase() || 'unknown',
+      created_date: typeof deployment.created_date === 'string' 
+        ? deployment.created_date 
+        : new Date(deployment.created_date).toISOString(),
+      updated_date: deployment.updated_date 
+        ? (typeof deployment.updated_date === 'string' 
+          ? deployment.updated_date 
+          : new Date(deployment.updated_date).toISOString())
+        : '',
+    }))
   },
 }
 

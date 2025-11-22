@@ -10,6 +10,7 @@ export type {
   DashboardStats,
   CreateServicePayload,
   TenantSettings,
+  DeploymentHistory,
 } from '@/types'
 
 import {
@@ -23,15 +24,8 @@ import {
 } from '@/types'
 
 // For backward compatibility with existing components using old interfaces
-export interface DeploymentHistory {
-  id: string
-  time: string
-  branch: string
-  status: 'success' | 'failed'
-  commitMessage: string
-  commitHash: string
-}
-
+// DeploymentHistory 타입은 @/types에서 import
+import type { DeploymentHistory } from '@/types'
 // Tenant (Team) data
 export const mockTenant: Tenant = {
   id: 'tenant-1',
@@ -43,44 +37,44 @@ export const mockTenant: Tenant = {
 
 // Services (Projects) data
 export const mockServices: Service[] = [
-  {
-    id: 'service-1',
-    tenantId: 'tenant-1',
-    name: 'Backend API',
-    gitUrl: 'https://github.com/team/backend-api.git',
-    branch: 'main',
-    domainPrefix: 'api-team1',
-    hasBackend: true,
-    hasFrontend: false,
-    createdAt: new Date('2024-01-05'),
-    updatedAt: new Date('2024-01-15'),
-    environments: [
-      {
-        id: 'env-1-dev',
-        serviceId: 'service-1',
-        name: 'Development',
-        type: 'dev',
-        status: 'success',
-        url: 'https://dev-api-team1.yoitang.cloud',
-        lastDeploymentTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        healthStatus: 'healthy',
-        commitHash: 'a3f4c21',
-        commitMessage: 'Add authentication endpoints',
-      },
-      {
-        id: 'env-1-prod',
-        serviceId: 'service-1',
-        name: 'Production',
-        type: 'prod',
-        status: 'success',
-        url: 'https://api-team1.yoitang.cloud',
-        lastDeploymentTime: new Date(Date.now() - 5 * 60 * 60 * 1000),
-        healthStatus: 'healthy',
-        commitHash: 'b7e8d92',
-        commitMessage: 'Fix critical bug in payment module',
-      },
-    ],
-  },
+  // {
+  //   id: 'service-1',
+  //   tenantId: 'tenant-1',
+  //   name: 'Backend API',
+  //   gitUrl: 'https://github.com/team/backend-api.git',
+  //   branch: 'main',
+  //   domainPrefix: 'api-team1',
+  //   hasBackend: true,
+  //   hasFrontend: false,
+  //   createdAt: new Date('2024-01-05'),
+  //   updatedAt: new Date('2024-01-15'),
+  //   environments: [
+  //     {
+  //       id: 'env-1-dev',
+  //       serviceId: 'service-1',
+  //       name: 'Development',
+  //       type: 'dev',
+  //       status: 'success',
+  //       url: 'https://dev-api-team1.yoitang.cloud',
+  //       lastDeploymentTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
+  //       healthStatus: 'healthy',
+  //       commitHash: 'a3f4c21',
+  //       commitMessage: 'Add authentication endpoints',
+  //     },
+  //     {
+  //       id: 'env-1-prod',
+  //       serviceId: 'service-1',
+  //       name: 'Production',
+  //       type: 'prod',
+  //       status: 'success',
+  //       url: 'https://api-team1.yoitang.cloud',
+  //       lastDeploymentTime: new Date(Date.now() - 5 * 60 * 60 * 1000),
+  //       healthStatus: 'healthy',
+  //       commitHash: 'b7e8d92',
+  //       commitMessage: 'Fix critical bug in payment module',
+  //     },
+  //   ],
+  // },
   {
     id: 'service-2',
     tenantId: 'tenant-1',
@@ -105,46 +99,46 @@ export const mockServices: Service[] = [
         commitHash: 'c9a1f44',
         commitMessage: 'UI improvements for deployment view',
       },
-      {
-        id: 'env-2-staging',
-        serviceId: 'service-2',
-        name: 'Staging',
-        type: 'staging',
-        status: 'success',
-        url: 'https://staging-dashboard-team1.yoitang.cloud',
-        lastDeploymentTime: new Date(Date.now() - 8 * 60 * 60 * 1000),
-        healthStatus: 'healthy',
-        commitHash: 'd2c5e88',
-        commitMessage: 'Merge PR: Add dark mode support',
-      },
+      // {
+      //   id: 'env-2-staging',
+      //   serviceId: 'service-2',
+      //   name: 'Staging',
+      //   type: 'staging',
+      //   status: 'success',
+      //   url: 'https://staging-dashboard-team1.yoitang.cloud',
+      //   lastDeploymentTime: new Date(Date.now() - 8 * 60 * 60 * 1000),
+      //   healthStatus: 'healthy',
+      //   commitHash: 'd2c5e88',
+      //   commitMessage: 'Merge PR: Add dark mode support',
+      // },
     ],
   },
-  {
-    id: 'service-3',
-    tenantId: 'tenant-1',
-    name: 'Analytics Service',
-    gitUrl: 'https://github.com/team/analytics-service.git',
-    branch: 'main',
-    domainPrefix: 'analytics-team1',
-    hasBackend: true,
-    hasFrontend: true,
-    createdAt: new Date('2024-01-10'),
-    updatedAt: new Date('2024-01-15'),
-    environments: [
-      {
-        id: 'env-3-prod',
-        serviceId: 'service-3',
-        name: 'Production',
-        type: 'prod',
-        status: 'success',
-        url: 'https://analytics-team1.yoitang.cloud',
-        lastDeploymentTime: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        healthStatus: 'healthy',
-        commitHash: 'e4f6g89',
-        commitMessage: 'Release: Analytics v2.1 with real-time metrics',
-      },
-    ],
-  },
+  // {
+  //   id: 'service-3',
+  //   tenantId: 'tenant-1',
+  //   name: 'Analytics Service',
+  //   gitUrl: 'https://github.com/team/analytics-service.git',
+  //   branch: 'main',
+  //   domainPrefix: 'analytics-team1',
+  //   hasBackend: true,
+  //   hasFrontend: true,
+  //   createdAt: new Date('2024-01-10'),
+  //   updatedAt: new Date('2024-01-15'),
+  //   environments: [
+  //     {
+  //       id: 'env-3-prod',
+  //       serviceId: 'service-3',
+  //       name: 'Production',
+  //       type: 'prod',
+  //       status: 'success',
+  //       url: 'https://analytics-team1.yoitang.cloud',
+  //       lastDeploymentTime: new Date(Date.now() - 24 * 60 * 60 * 1000),
+  //       healthStatus: 'healthy',
+  //       commitHash: 'e4f6g89',
+  //       commitMessage: 'Release: Analytics v2.1 with real-time metrics',
+  //     },
+  //   ],
+  // },
 ]
 
 // Environments data (for backward compatibility)
@@ -225,36 +219,44 @@ export const mockDeployments: Deployment[] = [
 // Mock deployment history for backward compatibility
 export const mockDeploymentHistory: DeploymentHistory[] = [
   {
-    id: '1',
-    time: '10:32',
-    branch: 'main',
-    status: 'success',
-    commitMessage: 'Fix critical bug in payment module',
-    commitHash: 'b7e8d92',
+    deploy_id: 0,
+    service_id: 0,
+    git_branch: "main",
+    commit_id: "a3f4c21",
+    commit_message: "Add authentication endpoints",
+    status: "success",
+    created_date: "2025-11-22T16:11:49.083Z",
+    updated_date: "2025-11-22T16:11:49.083Z",
   },
   {
-    id: '2',
-    time: '09:15',
-    branch: 'develop',
-    status: 'success',
-    commitMessage: 'Add authentication endpoints',
-    commitHash: 'a3f4c21',
+    deploy_id: 1,
+    service_id: 0,
+    git_branch: "develop",
+    commit_id: "b7e8d92",
+    commit_message: "Fix critical bug in payment module",
+    status: "success",
+    created_date: "2025-11-22T16:11:49.083Z",
+    updated_date: "2025-11-22T16:11:49.083Z",
   },
   {
-    id: '3',
-    time: '08:47',
-    branch: 'staging',
-    status: 'success',
-    commitMessage: 'Merge PR: Add dark mode support',
-    commitHash: 'd2c5e88',
+    deploy_id: 2,
+    service_id: 0,
+    git_branch: "staging",
+    commit_id: "d2c5e88",
+    commit_message: "Merge PR: Add dark mode support",
+    status: "success",
+    created_date: "2025-11-22T16:11:49.083Z",
+    updated_date: "2025-11-22T16:11:49.083Z",
   },
   {
-    id: '4',
-    time: '어제 18:22',
-    branch: 'main',
-    status: 'failed',
-    commitMessage: 'Database migration',
-    commitHash: 'c5e6f90',
+    deploy_id: 3,
+    service_id: 0,
+    git_branch: "main",
+    commit_id: "c5e6f90",
+    commit_message: "Database migration",
+    status: "failed",
+    created_date: "2025-11-22T16:11:49.083Z",
+    updated_date: "2025-11-22T16:11:49.083Z",
   },
 ]
 

@@ -24,7 +24,7 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/new-project" element={<NewProject />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/pipeline" element={<PipelineDetail />} />
+          <Route path="/pipeline/:serviceId" element={<PipelineDetail />} />
           <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

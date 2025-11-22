@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "@/lib/LanguageContext";
 import { t } from "@/lib/i18n";
 import StageIndicator from "@/components/pipeline/StageIndicator";
@@ -10,6 +10,7 @@ import { mockPipelineStages } from "@/utils/mockData";
 const PipelineDetail = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { serviceId } = useParams<{ serviceId: string }>();
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">

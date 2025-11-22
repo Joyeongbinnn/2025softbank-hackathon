@@ -2,9 +2,11 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Settings, Bell, Plus, Eye } from "lucide-react"
+import { Settings, Bell, Plus, Eye, Loader2 } from "lucide-react"
 import { useLanguage } from "@/lib/LanguageContext"
 import { t } from "@/lib/i18n"
+import { useQuery } from "@tanstack/react-query"
+import { api } from "@/lib/api"
 import { mockServices, mockDeploymentHistory, calculateDashboardStats, mockDeployments } from "@/utils/mockData"
 import EnvironmentCard from "@/components/dashboard/EnvironmentCard"
 import DeploymentHistory from "@/components/dashboard/DeploymentHistory"
@@ -12,6 +14,15 @@ import SummaryCard from "@/components/dashboard/SummaryCard"
 
 const Dashboard = () => {
   const { language } = useLanguage()
+  
+  // TODO: user_id를 실제 사용자 인증에서 가져오도록 수정 필요
+  const userId = 1 // 임시로 하드코딩
+  
+  const { data: services, isLoading, isError, error } = useQuery({
+    queryKey: ['services', userId],
+    queryFn: () => api.getServicesByUserId(userId),
+  })
+  
   const dashboardStats = calculateDashboardStats(mockServices)
 
   return (
@@ -63,87 +74,40 @@ const Dashboard = () => {
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                {mockServices.map((service) => (
-                  <div key={service.id} className="space-y-3">
-                    <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-border/50 bg-muted/30">
-                      <h3 className="font-semibold text-sm">{service.name}</h3>
-                      <Badge variant="outline" className="text-xs">
-                        {service.environments.length} {t(language, 'environment')}
-                      </Badge>
-                    </div>
-                    <div className="grid gap-2">
-                      {service.environments.slice(0, 2).map((env) => (
-                        <EnvironmentCard
-                          key={env.id}
-                          environment={env}
-                        />
-                      ))}
+                {isLoading && (
+                  <div className="col-span-2 flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <span className="ml-2 text-muted-foreground">
+                      {language === 'ko' ? '서비스를 불러오는 중...' : language === 'en' ? 'Loading services...' : 'サービスを読み込み中...'}
+                    </span>
+                  </div>
+                )}
+                {isError && (
+                  <div className="col-span-2 flex items-center justify-center py-12">
+                    <div className="text-center">
+                      <p className="text-destructive mb-2">
+                        {language === 'ko' ? '서비스를 불러오는데 실패했습니다.' : language === 'en' ? 'Failed to load services.' : 'サービスの読み込みに失敗しました。'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {error instanceof Error ? error.message : 'Unknown error'}
+                      </p>
                     </div>
                   </div>
+                )}
+                {services && services.map((service) => (
+                  <EnvironmentCard
+                    key={service.service_id}
+                    serviceInfo={service}
+                  />
                 ))}
-              </div>
-            </div>
-
-            {/* Recent Deployments Table */}
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">{t(language, 'recentDeployments')}</h2>
-              <Card>
-                <CardContent className="p-0">
-                  <div className="divide-y">
-                    {mockDeployments.slice(0, 5).map((deployment) => {
-                      const service = mockServices.find(s => s.id === deployment.serviceId)
-                      const statusBgColor =
-                        deployment.status === 'success'
-                          ? 'bg-success/10'
-                          : deployment.status === 'failed'
-                            ? 'bg-destructive/10'
-                            : 'bg-warning/10'
-                      const statusTextColor =
-                        deployment.status === 'success'
-                          ? 'text-success'
-                          : deployment.status === 'failed'
-                            ? 'text-destructive'
-                            : 'text-warning'
-
-                      return (
-                        <div key={deployment.id} className="p-4 hover:bg-muted/50 transition-colors">
-                          <div className="flex items-center justify-between">
-                            <div className="min-w-0 flex-1 space-y-1">
-                              <div className="flex items-center gap-3">
-                                <span className="font-medium truncate">{service?.name}</span>
-                                <Badge variant="outline" className="text-xs">
-                                  {deployment.branch}
-                                </Badge>
-                                <Badge
-                                  className={`text-xs ${statusBgColor} ${statusTextColor}`}
-                                  variant="outline"
-                                >
-                                  {deployment.status === 'success'
-                                    ? t(language, 'success')
-                                    : deployment.status === 'failed'
-                                      ? t(language, 'failed')
-                                      : t(language, 'running')}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-muted-foreground">{deployment.commitMessage}</p>
-                            </div>
-                            <div className="text-right space-y-1 ml-4">
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(deployment.startTime).toLocaleString(language === 'ko' ? 'ko-KR' : language === 'en' ? 'en-US' : 'ja-JP')}
-                              </p>
-                              {deployment.duration && (
-                                <p className="text-xs font-medium">
-                                  {Math.round(deployment.duration / 60)}m
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
+                {services && services.length === 0 && (
+                  <div className="col-span-2 flex items-center justify-center py-12">
+                    <p className="text-muted-foreground">
+                      {language === 'ko' ? '등록된 서비스가 없습니다.' : language === 'en' ? 'No services found.' : '登録されたサービスがありません。'}
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+              </div>
             </div>
           </div>
 
@@ -171,7 +135,7 @@ const Dashboard = () => {
             </Card>
 
             {/* Deployment History */}
-            <DeploymentHistory />
+            <DeploymentHistory serviceId={services && services.length > 0 ? services[0].service_id : 1} />
           </div>
         </div>
       </div>
