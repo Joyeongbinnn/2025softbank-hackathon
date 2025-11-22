@@ -187,6 +187,9 @@ COPY . .
 RUN npm run build
 
 FROM nginx:1.27-alpine
+
+RUN apk update && apk upgrade --no-cache
+
 COPY --from=builder /app/build /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
@@ -245,7 +248,7 @@ EOF
         }
       }
     }
-/*
+
     // 7) Trivy 이미지 스캔
     stage('Trivy Scan') {
       steps {
@@ -261,7 +264,7 @@ EOF
         '''
       }
     }
-*/
+
     // 8) K8s 매니페스트 생성 & 배포
      // 8) K8s 매니페스트 생성 & 배포 + ECR Secret 연동
     stage('Generate K8s Manifests & Deploy') {
