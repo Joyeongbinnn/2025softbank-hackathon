@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GitBranch, Code2, Server, Layers } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GitBranch, Code2, Server, Layers, Lock } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { t } from "@/lib/i18n";
+import PATModal from "./PATModal";
 
 interface Step2Props {
   gitUrl: string;
@@ -45,7 +48,18 @@ const Step2GitSetup = ({
   onUseRepoDockerfileChange,
 }: Step2Props) => {
   const { language } = useLanguage();
-  
+  const [isPATModalOpen, setIsPATModalOpen] = useState(false);
+  const [pat, setPat] = useState("");
+
+  const handleGitUrlChange = (value: string) => {
+    onGitUrlChange(value);
+  };
+
+  const handlePATConfirm = (patValue: string) => {
+    setPat(patValue);
+    setIsPATModalOpen(false);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="space-y-2">
@@ -54,11 +68,11 @@ const Step2GitSetup = ({
           id="gitUrl"
           placeholder="https://github.com/username/repository"
           value={gitUrl}
-          onChange={(e) => onGitUrlChange(e.target.value)}
+          onChange={(e) => handleGitUrlChange(e.target.value)}
           className="text-base"
         />
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="branch">{language === 'ko' ? '배포 브랜치' : language === 'en' ? 'Deploy Branch' : 'デプロイブランチ'} *</Label>
         <Select value={branch} onValueChange={onBranchChange}>
@@ -71,6 +85,26 @@ const Step2GitSetup = ({
             <SelectItem value="staging">staging</SelectItem>
           </SelectContent>
         </Select>
+
+        {/* PAT Button for Private Repository */}
+        {gitUrl && (
+          <div className="mt-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPATModalOpen(true)}
+              className="gap-2 w-full"
+            >
+              <Lock className="h-4 w-4" />
+              {t(language, 'patButton')}
+            </Button>
+            {pat && (
+              <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                ✓ {language === 'ko' ? 'PAT 입력됨' : language === 'en' ? 'PAT Entered' : 'PAT が入力されました'}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -209,6 +243,13 @@ const Step2GitSetup = ({
           )}
         </div>
       </div>
+
+      {/* PAT Modal */}
+      <PATModal
+        isOpen={isPATModalOpen}
+        onClose={() => setIsPATModalOpen(false)}
+        onConfirm={handlePATConfirm}
+      />
     </div>
   );
 };

@@ -168,6 +168,22 @@ const translations = {
     copyUrl: 'URL 복사',
     shareService: '서비스 공유',
     deleteService: '서비스 삭제',
+
+    // Private Repository & PAT
+    privateRepository: 'Private 저장소 감지됨',
+    patRequired: 'Personal Access Token 입력 필요',
+    patButton: 'PAT 입력하기',
+    patModalTitle: 'GitHub PAT (Personal Access Token) 입력',
+    patGuideTitle: 'PAT 가이드',
+    patGuideStep1: '1. GitHub 계정으로 로그인합니다',
+    patGuideStep2: '2. Settings → Developer settings → Personal access tokens → Tokens (classic)으로 이동합니다',
+    patGuideStep3: '3. "Generate new token (classic)"을 클릭합니다',
+    patGuideStep4: '4. 다음 권한을 선택합니다: repo (저장소 접근), read:user (사용자 정보 읽기)',
+    patGuideStep5: '5. 토큰을 생성하고 복사합니다 (다시 볼 수 없으니 주의!)',
+    patGuideStep6: '아래에 PAT를 붙여넣으세요:',
+    patInputPlaceholder: 'ghp_로 시작하는 토큰을 입력하세요...',
+    patConfirmButton: '확인',
+    patGithubLink: 'GitHub PAT 생성 페이지로 이동',
   },
   en: {
     // Header & Navigation
@@ -335,6 +351,22 @@ const translations = {
     copyUrl: 'Copy URL',
     shareService: 'Share Service',
     deleteService: 'Delete Service',
+
+    // Private Repository & PAT
+    privateRepository: 'Private Repository Detected',
+    patRequired: 'Personal Access Token Required',
+    patButton: 'Enter PAT',
+    patModalTitle: 'GitHub PAT (Personal Access Token)',
+    patGuideTitle: 'PAT Setup Guide',
+    patGuideStep1: '1. Log in to your GitHub account',
+    patGuideStep2: '2. Go to Settings → Developer settings → Personal access tokens → Tokens (classic)',
+    patGuideStep3: '3. Click "Generate new token (classic)"',
+    patGuideStep4: '4. Select these permissions: repo (repository access), read:user (read user info)',
+    patGuideStep5: '5. Generate and copy the token (you won\'t see it again, so be careful!)',
+    patGuideStep6: 'Paste your PAT below:',
+    patInputPlaceholder: 'Enter token starting with ghp_...',
+    patConfirmButton: 'Confirm',
+    patGithubLink: 'Go to GitHub PAT Generation Page',
   },
   ja: {
     // Header & Navigation
@@ -500,6 +532,22 @@ const translations = {
     copyUrl: 'URLをコピー',
     shareService: 'サービスを共有',
     deleteService: 'サービスを削除',
+
+    // Private Repository & PAT
+    privateRepository: 'プライベートリポジトリが検出されました',
+    patRequired: 'Personal Access Token が必要です',
+    patButton: 'PAT を入力',
+    patModalTitle: 'GitHub PAT (Personal Access Token)',
+    patGuideTitle: 'PAT セットアップガイド',
+    patGuideStep1: '1. GitHub アカウントにログインします',
+    patGuideStep2: '2. Settings → Developer settings → Personal access tokens → Tokens (classic)に移動します',
+    patGuideStep3: '3. "Generate new token (classic)"をクリックします',
+    patGuideStep4: '4. これらのアクセス許可を選択します: repo (リポジトリアクセス), read:user (ユーザー情報読み取り)',
+    patGuideStep5: '5. トークンを生成してコピーします (再度表示されないため、注意してください！)',
+    patGuideStep6: '以下に PAT を貼り付けてください:',
+    patInputPlaceholder: 'ghp_ で始まるトークンを入力してください...',
+    patConfirmButton: '確認',
+    patGithubLink: 'GitHub PAT 生成ページへ移動',
   },
 }
 
