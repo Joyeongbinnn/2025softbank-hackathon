@@ -65,10 +65,16 @@ async def get_user_deploys(user_id: int, db: Session = Depends(get_db)):
     deploys = get_deploys_by_user_id(db, user_id)
     return deploys
 
-@router.post("/log/receive", summary="Jenkins로부터 배포 로그 수신")
-async def receive_deploy_log(log: dict):
-    deploy_id = log.get("deploy_id")
-    stage = log.get("stage")
-    message = log.get("message")
-    print(f"📦 Deploy {deploy_id} | Stage: {stage} | Log: {message}")
+class DeployLog(BaseModel):
+    stage: str
+    message: str
+    prefix: str
+    build_number: int
+    deploy_id: Optional[str] = None  # 선택적으로 사용 가능
+
+@app.post("/log/receive", summary="Jenkins로부터 배포 로그 수신")
+async def receive_deploy_log(log: DeployLog):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    deploy_id = log.deploy_id if log.deploy_id else "None"
+    print(f"[{timestamp}] 📦 Deploy {deploy_id} | Stage: {log.stage} | {log.message}")
     return {"ok": True}

@@ -46,6 +46,15 @@ pipeline {
     )
   }
 
+  def sendLog(stageName, line) {
+    echo "[${stageName}] ${line}"
+    sh """
+    curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive \\
+         -H "Content-Type: application/json" \\
+         -d '{"stage":"${stageName}","message":"${line}","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
+    """
+  }
+
   stages {
 
     // 1) 팀 레포를 app/ 아래에 체크아웃
@@ -53,20 +62,29 @@ pipeline {
       steps {
         dir('app') {
           deleteDir()
-          echo "[Checkout] ${params.GIT_REPO} (${params.BRANCH})"
-          git branch: params.BRANCH, url: params.GIT_REPO
-          sh 'echo "[Checkout] app 디렉터리 구조"; ls -R'
+          script {
+            sendLog("Checkout", "${params.GIT_REPO} (${params.BRANCH})")
+
+            // git clone 출력 한 줄씩 처리
+            sh """
+            git clone -b ${params.BRANCH} ${params.GIT_REPO} . | while IFS= read -r line; do
+              curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive -H "Content-Type: application/json" -d '{"stage":"Checkout","message":"'$line'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
+            done
+            """
+
+            // ls 출력도 한 줄씩 처리
+            sh """
+            echo "app 디렉터리 구조" | while IFS= read -r line; do
+              curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive -H "Content-Type: application/json" -d '{"stage":"Checkout","message":"'$line'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
+            done
+            ls -R | while IFS= read -r line; do
+              curl -s -X POST https://www.yoitang.cloud/api/deploy/log/receive -H "Content-Type: application/json" -d '{"stage":"Checkout","message":"'$line'","prefix":"${params.PREFIX}","build_number":${env.BUILD_NUMBER}}'
+            done
+            """
+          }
         }
       }
-      post {
-        success {
-          sh "curl -X POST https://www.yoitang.cloud/api/deploy/log/receive -H 'Content-Type: application/json' -d '{\"stage\":\"Checkout\",\"status\":\"success\",\"prefix\":\"${params.PREFIX}\",\"build_number\":${env.BUILD_NUMBER}}'"
-        }
-        failure {
-          sh "curl -X POST https://www.yoitang.cloud/api/deploy/log/receive -H 'Content-Type: application/json' -d '{\"stage\":\"Checkout\",\"status\":\"fail\",\"prefix\":\"${params.PREFIX}\",\"build_number\":${env.BUILD_NUMBER}}'"
-        }
-      }
-    }      
+    }  
   
 
     // 2) frontend/ 기준으로 npm ci + eslint
