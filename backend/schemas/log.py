@@ -19,3 +19,7 @@ class LogResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class LogUpdate(BaseModel):
+    log: str
+    stage: str
