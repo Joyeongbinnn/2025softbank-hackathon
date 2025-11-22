@@ -193,6 +193,21 @@ export const api = {
     }
     return deployment
   },
+
+  async postDeploy(payload: any): Promise<any> {
+    const res = await fetch('/deploy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(`Deploy request failed: ${res.status} ${text}`)
+    }
+
+    return res.json()
+  },
 }
 
 export default api

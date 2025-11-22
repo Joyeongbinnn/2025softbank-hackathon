@@ -1,5 +1,6 @@
 import os
 import requests
+import time
 from requests.auth import HTTPBasicAuth
 
 
@@ -57,3 +58,50 @@ class JenkinsClient:
 
         return queue_id
     
+    def get_build_number_from_queue(self, queue_id: int, timeout: int = 60, interval: float = 2.0) -> int:
+        """
+        queue_id로 해당 빌드의 build_number(예: 31)를 조회.
+        빌드가 시작되기 전까지는 executable이 없으므로, 일정 시간 폴링.
+        """
+        url = f"{self.base_url}/queue/item/{queue_id}/api/json"
+
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            resp = requests.get(url, auth=HTTPBasicAuth(self.username, self.token), timeout=5, verify=True)
+            resp.raise_for_status()
+            data = resp.json()
+
+            executable = data.get("executable")
+            if executable and "number" in executable:
+                return int(executable["number"])
+
+            # 아직 빌드가 안 붙은 상태 → 잠시 대기 후 재조회
+            time.sleep(interval)
+
+        raise RuntimeError(f"빌드 번호를 가져오지 못했습니다. (queue_id={queue_id})")
+
+    def get_build_log_chunk(self, build_number: int, start: int = 0):
+        """
+        progressiveText API를 이용해 텍스트 로그 조각을 가져옴.
+        """
+        url = f"{self.base_url}/job/{self.job_name}/{build_number}/logText/progressiveText"
+
+        resp = requests.get(
+            url,
+            params={"start": start},
+            auth=HTTPBasicAuth(self.username, self.token),
+            timeout=10,
+            verify=True,
+        )
+        if resp.status_code != 200:
+            raise RuntimeError(f"로그 조회 실패 (status={resp.status_code}, body={resp.text})")
+
+        text = resp.text
+        next_start = int(resp.headers.get("X-Text-Size", "0"))
+        more_data = resp.headers.get("X-More-Data") == "true"
+
+        return {
+            "text": text,
+            "next_start": next_start,
+            "more_data": more_data,
+        }
