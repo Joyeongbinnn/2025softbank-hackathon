@@ -2,7 +2,6 @@ pipeline {
   agent any
 
   environment {
-    // docker-compose 에서 주입한 값 사용
     AWS_REGION     = "${env.AWS_REGION}"
     ECR_ACCOUNT_ID = "${env.ECR_ACCOUNT_ID}"
     ECR_REGISTRY   = "${ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
@@ -16,143 +15,90 @@ pipeline {
   }
 
   parameters {
-    string(
-      name: 'PREFIX',
-      description: '도메인 prefix (예: team1)',
-      trim: true
-    )
-    string(
-      name: 'GIT_REPO',
-      description: '프론트엔드 Git 저장소 URL',
-      trim: true
-    )
-    string(
-      name: 'BRANCH',
-      defaultValue: 'master',
-      description: '배포 브랜치',
-      trim: true
-    )
+    string(name: 'PREFIX', description: '도메인 prefix (예: team1)', trim: true)
+    string(name: 'GIT_REPO', description: '프론트엔드 Git 저장소 URL', trim: true)
+    string(name: 'BRANCH', defaultValue: 'master', description: '배포 브랜치', trim: true)
 
-    booleanParam(
-      name: 'USE_REPO_DOCKERFILE',
-      defaultValue: false,
-      description: '체크 시 레포 안의 frontend/Dockerfile 그대로 사용'
-    )
+    booleanParam(name: 'USE_REPO_DOCKERFILE', defaultValue: false,
+      description: '체크 시 레포 안의 frontend/Dockerfile 그대로 사용')
 
-    choice(
-      name: 'FRONTEND_STACK',
-      choices: ['react-vite'],
-      description: '프론트엔드 스택 (현재는 React(Vite)만 지원)'
-    )
+    choice(name: 'FRONTEND_STACK', choices: ['react-vite'],
+      description: '프론트엔드 스택 (현재는 React(Vite)만 지원)')
   }
 
   stages {
 
-    // 1) 팀 레포를 app/ 아래에 체크아웃
     stage('Checkout') {
       steps {
         dir('app') {
           deleteDir()
           echo "[Checkout] ${params.GIT_REPO} (${params.BRANCH})"
           git branch: params.BRANCH, url: params.GIT_REPO
-          sh 'echo "[Checkout] app 디렉터리 구조"; ls -R'
+          sh 'ls -R'
         }
       }
     }
 
-    // 2) frontend/ 기준으로 npm ci + eslint
     stage('Install deps & ESLint') {
       steps {
         dir('app/frontend') {
           sh '''
-          if [ ! -d . ]; then
-            echo "[ERROR] frontend 디렉터리가 없습니다. 레포 구조를 확인하세요."
-            exit 1
+          if [ ! -f package.json ]; then
+            echo "[ERROR] frontend 디렉터리에 package.json 없음"; exit 1
           fi
 
-          if [ -f package.json ]; then
-            echo "[Node] package.json 발견"
-
-            if [ -f package-lock.json ]; then
-              echo "[Node] package-lock.json 발견 → npm ci 시도"
-              if ! npm ci; then
-                echo "[WARN] npm ci 실패 → npm install 로 폴백"
-                npm install
-              fi
-            else
-              echo "[Node] package-lock.json 없음 → npm install 실행"
-              npm install
-            fi
-
-            if npx eslint --version >/dev/null 2>&1; then
-              echo "[ESLint] lint 실행"
-              npx eslint . || exit 1
-            else
-              echo "[ESLint] eslint 설정 없음 → 스킵"
-            fi
+          if [ -f package-lock.json ]; then
+            if ! npm ci; then npm install; fi
           else
-            echo "[ERROR] frontend 디렉터리에 package.json 이 없습니다."
-            ls -al
-            exit 1
+            npm install
+          fi
+
+          if npx eslint --version >/dev/null 2>&1; then
+            npx eslint . || exit 1
+          else
+            echo "[ESLint] 설정 없음 → 스킵"
           fi
           '''
         }
       }
     }
 
-    // 3) ECR 로그인 (Kaniko에서 쓸 도커 config)
     stage('ECR Login (Kaniko용)') {
       steps {
         sh '''
         mkdir -p ${DOCKER_CONFIG}
-        echo "[ECR] docker login 시작"
-
         aws ecr get-login-password --region ${AWS_REGION} \
           | docker login --username AWS --password-stdin ${ECR_REGISTRY}
         '''
       }
     }
 
-    // 4) ECR 리포지토리 존재 보장 (없으면 생성)
     stage('Ensure ECR Repositories') {
       steps {
         sh '''
-        echo "[ECR] 리포지토리 존재 여부 확인 및 없으면 생성"
-
-        # 메인 이미지 리포
         if ! aws ecr describe-repositories \
-              --repository-names ${ECR_REPO} \
-              --region ${AWS_REGION} >/dev/null 2>&1; then
-          echo "[ECR] ${ECR_REPO} 리포지토리가 없어 생성합니다."
+            --repository-names ${ECR_REPO} \
+            --region ${AWS_REGION} >/dev/null 2>&1; then
           aws ecr create-repository \
             --repository-name ${ECR_REPO} \
             --region ${AWS_REGION}
-        else
-          echo "[ECR] ${ECR_REPO} 리포지토리 이미 존재"
         fi
         '''
       }
     }
 
-    // 5) 플랫폼이 관리하는 Dockerfile 생성 (frontend/ 안에)
     stage('Generate Dockerfile (managed)') {
-      when {
-        expression { return !params.USE_REPO_DOCKERFILE }
-      }
+      when { expression { return !params.USE_REPO_DOCKERFILE } }
       steps {
         dir('app/frontend') {
           sh '''
-          echo "[Dockerfile] 플랫폼 관리 Dockerfile 생성 시작 (frontend 기준)"
-
           case "${FRONTEND_STACK}" in
             react-vite)
-              cat > Dockerfile << 'EOF'
+              cat > Dockerfile <<'EOF'
 FROM node:20-alpine AS builder
-
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
-
 COPY . .
 RUN npm run build
 
@@ -163,43 +109,20 @@ CMD ["nginx", "-g", "daemon off;"]
 EOF
               ;;
             *)
-              echo "[ERROR] 지원하지 않는 FRONTEND_STACK: ${FRONTEND_STACK}"
-              exit 1
-              ;;
+              echo "[ERROR] Unknown stack"; exit 1;;
           esac
-
-          echo "[Dockerfile] 생성 완료:"
-          pwd
-          ls -al Dockerfile
           '''
         }
       }
     }
 
-    // 6) Kaniko로 빌드 & 푸시 (context = app/frontend)
     stage('Build & Push with Kaniko') {
       steps {
         script {
-          def tag = "${params.PREFIX}-${env.BUILD_NUMBER}"
-          env.IMAGE_FULL = "${ECR_REGISTRY}/${ECR_REPO}:${tag}"
+          env.IMAGE_FULL = "${ECR_REGISTRY}/${ECR_REPO}:${params.PREFIX}-${env.BUILD_NUMBER}"
         }
-
         dir('app/frontend') {
           sh '''
-          set -e
-
-          if [ ! -f Dockerfile ]; then
-            echo "[ERROR] frontend 디렉터리에 Dockerfile 이 없습니다."
-            pwd
-            ls -al
-            exit 1
-          fi
-
-          echo "[Kaniko] 이미지 빌드 & 푸시 → ${IMAGE_FULL}"
-          echo "[Kaniko] HOST PWD=$(pwd)"
-          ls -al
-
-          # 호스트 기준 Jenkins 홈 경로 (docker inspect .Source에서 가져온 값)
           HOST_JENKINS_HOME="/home/ubuntu/2025softbank-hackathon/infra/jenkins_home"
 
           docker run --rm \
@@ -217,31 +140,29 @@ EOF
     }
 
     /*
-    // 7) Trivy 이미지 스캔
+    =======================
+    === Trivy Scan (보존) ===
     stage('Trivy Scan') {
       steps {
-        sh '''
-        echo "[Trivy] 취약점 스캔 시작 → ${IMAGE_FULL}"
+        sh """
         trivy image --severity ${TRIVY_SEVERITY} \
                     --ignore-unfixed=${TRIVY_IGNORE_UNFIXED} \
                     --exit-code 1 \
-                    ${IMAGE_FULL} || {
-          echo "[Trivy] CRITICAL/HIGH 취약점 발견 → 빌드 실패"
-          exit 1
-        }
-        '''
+                    ${IMAGE_FULL}
+        """
       }
     }
+    =======================
     */
 
-    // 8) K8s 매니페스트 생성 & 배포
     stage('Generate K8s Manifests & Deploy') {
       steps {
         sh '''
         set -e
-        echo "[K8s] 매니페스트 생성 시작 → prefix=${PREFIX}"
+        echo "[K8s] deploying → ${PREFIX}"
         mkdir -p k8s/${PREFIX}
 
+        # Namespace
         cat <<EOF > k8s/${PREFIX}/namespace.yaml
 apiVersion: v1
 kind: Namespace
@@ -249,6 +170,16 @@ metadata:
   name: ${PREFIX}
 EOF
 
+        # Create ECR Pull Secret
+        PASSWORD=$(aws ecr get-login-password --region ${AWS_REGION})
+        kubectl create secret docker-registry ecr \
+          --docker-server=${ECR_REGISTRY} \
+          --docker-username=AWS \
+          --docker-password="${PASSWORD}" \
+          -n ${PREFIX} \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+        # Deployment
         cat <<EOF > k8s/${PREFIX}/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -274,6 +205,7 @@ spec:
         - containerPort: 80
 EOF
 
+        # Service
         cat <<EOF > k8s/${PREFIX}/service.yaml
 apiVersion: v1
 kind: Service
@@ -288,6 +220,7 @@ spec:
     targetPort: 80
 EOF
 
+        # Ingress
         cat <<EOF > k8s/${PREFIX}/ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -316,16 +249,10 @@ spec:
               number: 80
 EOF
 
-        echo "[kubectl] apply 시작 (namespace → deploy → svc → ingress 순서)"
-
-        # 1) 네임스페이스 먼저
+        # Apply in order
         kubectl apply -f k8s/${PREFIX}/namespace.yaml
-
-        # 2) 워크로드/서비스
         kubectl apply -f k8s/${PREFIX}/deployment.yaml
         kubectl apply -f k8s/${PREFIX}/service.yaml
-
-        # 3) 인그레스
         kubectl apply -f k8s/${PREFIX}/ingress.yaml
 
         kubectl get pods -n ${PREFIX}
