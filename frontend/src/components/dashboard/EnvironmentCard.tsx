@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils"
 import { useNavigate } from "react-router-dom"
 import { useLanguage } from "@/lib/LanguageContext"
 import { t } from "@/lib/i18n"
+import { api } from "@/lib/api"
+import { useState } from "react"
 import type { Environment, ServiceInfo } from "@/types"
 
 interface EnvironmentCardProps {
@@ -15,6 +17,7 @@ interface EnvironmentCardProps {
 const EnvironmentCard = ({ serviceInfo }: EnvironmentCardProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const [isLoading, setIsLoading] = useState(false);
   
   // const getStatusConfig = () => {
   //   switch (environment.status) {
@@ -151,10 +154,36 @@ const EnvironmentCard = ({ serviceInfo }: EnvironmentCardProps) => {
             size="sm"
             variant="outline"
             className="flex-1"
-            onClick={() => navigate(`/pipeline/${serviceInfo.service_id}`)}
+            disabled={isLoading}
+            onClick={async () => {
+              try {
+                setIsLoading(true);
+                const latestDeploy = await api.getLatestDeployByServiceId(serviceInfo.service_id);
+                navigate(`/pipeline/${latestDeploy.deploy_id}`);
+              } catch (error) {
+                console.error('Failed to fetch latest deployment:', error);
+                // 에러 발생 시에도 사용자에게 알림 (선택사항)
+                alert(language === 'ko' 
+                  ? '최신 배포 정보를 가져오는데 실패했습니다.' 
+                  : language === 'en' 
+                    ? 'Failed to fetch latest deployment information.'
+                    : '最新のデプロイ情報の取得に失敗しました。');
+              } finally {
+                setIsLoading(false);
+              }
+            }}
           >
-            <FileText className="h-3 w-3 mr-1" />
-            {t(language, 'viewLogs')}
+            {isLoading ? (
+              <>
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                {t(language, 'loading')}
+              </>
+            ) : (
+              <>
+                <FileText className="h-3 w-3 mr-1" />
+                {t(language, 'viewLogs')}
+              </>
+            )}
           </Button>
           {/* <Button size="sm" variant="outline">
             <ExternalLink className="h-3 w-3" />
