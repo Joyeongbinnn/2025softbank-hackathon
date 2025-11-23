@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from database.yoitang import get_db
 from crud.service import create_service, get_service, get_services_by_user, get_services_count_by_user, get_success_services_count_by_user, get_today_user_services_count, get_user_service_success_rate
-from crud.deploy import create_deploy
+from crud.deploy import create_deploy, get_latest_deploy_by_service, update_deploy_status
 from schemas.service import ServiceCreate, ServiceResponse, ServiceDeployInfo
 from schemas.deploy import DeployCreate, DeployRequest
 from core.git_util import get_latest_commit
@@ -93,4 +93,48 @@ async def create_auto_deploy(auto_deploy_data: ServiceDeployInfo, db: Session = 
         "service": service,
         "deploy": deploy,
         "message": "Service and deploy created, Jenkins build triggered asynchronously."
+    }
+
+# 서비스 다시 배포
+@router.post("/redeploy/{service_id}", summary="서비스 다시 배포")
+async def redeploy_service(service_id: int, db: Session = Depends(get_db)):    
+    deploy = get_latest_deploy_by_service(db, service_id)
+    if not deploy:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="해당 서비스의 배포 이력이 존재하지 않습니다."
+        )
+    
+    update_deploy_status(db, deploy.deploy_id, "ARCHIVED")
+    
+    service = get_service(db, service_id)
+    if not service:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="해당 서비스가 존재하지 않습니다."
+        )
+
+    commit_id, commit_message = get_latest_commit(service.git_repo, deploy.git_branch)
+
+    deploy_create = DeployCreate(
+        service_id=service.service_id,
+        git_branch=deploy.git_branch,
+        commit_id=commit_id,
+        commit_message=commit_message,
+    )
+    new_deploy = create_deploy(db, deploy_create)
+
+    deploy_req = DeployRequest(
+        prefix=service.domain,
+        git_repo=service.git_repo,
+        branch=new_deploy.git_branch,
+        use_repo_dockerfile=False,
+        frontend_stack="react-vite"
+    )
+    asyncio.create_task(trigger_jenkins_build(new_deploy.deploy_id, deploy_req))
+
+    return {
+        "service": service,
+        "deploy": new_deploy,
+        "message": "Redeploy created, Jenkins build triggered asynchronously."
     }

@@ -90,7 +90,7 @@ async def get_service_deploys(service_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND, 
             detail="해당 서비스의 배포 이력이 존재하지 않습니다."
         )
-    return deploys
+    return deploys    
 
 class DeployLog(BaseModel):
     stage: str
