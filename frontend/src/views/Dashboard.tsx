@@ -135,7 +135,7 @@ const Dashboard = () => {
             </Card>
 
             {/* Deployment History */}
-            <DeploymentHistory serviceId={services && services.length > 0 ? services[0].service_id : 1} />
+            <DeploymentHistory serviceId={1} />
           </div>
         </div>
       </div>
