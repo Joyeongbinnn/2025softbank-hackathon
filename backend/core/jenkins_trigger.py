@@ -25,7 +25,7 @@ async def trigger_jenkins_build(deploy_id: int, req: DeployRequest):
             branch=req.branch,
             use_repo_dockerfile=req.use_repo_dockerfile,
             frontend_stack=req.frontend_stack,
-            git_pat=req.git_pat,
+            git_pat=req.git_pat if req.git_pat else None,
         )
         
         # queue_id → build_number 조회 (blocking → thread 로)
