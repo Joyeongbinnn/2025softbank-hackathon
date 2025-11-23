@@ -85,7 +85,8 @@ async def create_auto_deploy(auto_deploy_data: ServiceDeployInfo, db: Session = 
         git_repo=service.git_repo,
         branch=deploy.git_branch,
         use_repo_dockerfile=False,
-        frontend_stack="react-vite"
+        frontend_stack="react-vite",
+        git_pat=auto_deploy_data.git_pat
     )
     asyncio.create_task(trigger_jenkins_build(deploy.deploy_id, deploy_req))
 
@@ -129,7 +130,7 @@ async def redeploy_service(service_id: int, db: Session = Depends(get_db)):
         git_repo=service.git_repo,
         branch=new_deploy.git_branch,
         use_repo_dockerfile=False,
-        frontend_stack="react-vite"
+        frontend_stack="react-vite",
     )
     asyncio.create_task(trigger_jenkins_build(new_deploy.deploy_id, deploy_req))
 

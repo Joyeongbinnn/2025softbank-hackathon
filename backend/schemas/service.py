@@ -26,3 +26,4 @@ class ServiceDeployInfo(BaseModel):
     domain: str
     git_repo: str
     git_branch: str
+    git_pat: str
