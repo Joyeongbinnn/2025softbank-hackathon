@@ -401,6 +401,8 @@ export const api = {
           ? service.updated_date 
           : new Date(service.updated_date).toISOString())
         : service.created_date,
+      prefix: service.prefix || service.name || service.domain,
+      namespace: service.namespace || service.domain || service.name,
     }
   },
 
@@ -436,6 +438,8 @@ export const api = {
           ? service.updated_date 
           : new Date(service.updated_date).toISOString())
         : service.created_date,
+      prefix: service.prefix || service.name || service.domain,
+      namespace: service.namespace || service.domain || service.name,
     }))
   },
 

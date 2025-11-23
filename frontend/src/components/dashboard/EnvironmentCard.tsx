@@ -1,9 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { RefreshCw, FileText, ExternalLink, CheckCircle2, XCircle, Loader2 } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useLanguage } from "@/lib/LanguageContext"
 import { t } from "@/lib/i18n"
 import { api } from "@/lib/api"
@@ -18,6 +16,16 @@ const EnvironmentCard = ({ serviceInfo }: EnvironmentCardProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
+  const prefix = serviceInfo.prefix ?? serviceInfo.name ?? serviceInfo.domain ?? "default";
+  const namespace = serviceInfo.namespace ?? serviceInfo.domain ?? prefix;
+  const metricsParams = new URLSearchParams({
+    serviceId: String(serviceInfo.service_id),
+    namespace,
+  });
+  if (prefix) {
+    metricsParams.set("prefix", prefix);
+  }
+  const metricsHref = `/dashboard/metrics?${metricsParams.toString()}`;
   
   // const getStatusConfig = () => {
   //   switch (environment.status) {
@@ -145,7 +153,7 @@ const EnvironmentCard = ({ serviceInfo }: EnvironmentCardProps) => {
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="outline" className="flex-1">
             <RefreshCw className="h-3 w-3 mr-1" />
             {t(language, 'redeploy')}
@@ -185,9 +193,12 @@ const EnvironmentCard = ({ serviceInfo }: EnvironmentCardProps) => {
               </>
             )}
           </Button>
-          {/* <Button size="sm" variant="outline">
-            <ExternalLink className="h-3 w-3" />
-          </Button> */}
+          <Button size="sm" variant="outline" className="flex-1" asChild>
+            <Link to={metricsHref} className="flex items-center justify-center gap-1">
+              <ExternalLink className="h-3 w-3" />
+              {language === 'ko' ? '메트릭' : language === 'ja' ? 'メトリクス' : 'Metrics'}
+            </Link>
+          </Button>
         </div>
       </CardContent>
     </Card>

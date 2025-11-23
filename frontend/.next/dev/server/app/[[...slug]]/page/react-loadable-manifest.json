@@ -1,13 +1,16 @@
 {
-  "[project]/src/App.tsx [app-client] (ecmascript, next/dynamic entry)": {
-    "id": "[project]/src/App.tsx [app-client] (ecmascript, next/dynamic entry)",
+  "[project]/frontend/src/App.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/frontend/src/App.tsx [app-client] (ecmascript, next/dynamic entry)",
     "files": [
-      "static/chunks/src_d5bcef8a._.js",
-      "static/chunks/node_modules_@remix-run_router_dist_router_9ce2e86e.js",
-      "static/chunks/node_modules_@radix-ui_39ec4e16._.js",
-      "static/chunks/node_modules_@floating-ui_1b6e7b6d._.js",
-      "static/chunks/node_modules_9727b4c9._.js",
-      "static/chunks/src_App_tsx_9105a320._.js"
+      "static/chunks/frontend_src_95bb6c6e._.js",
+      "static/chunks/9e883_@tanstack_query-core_build_modern_158162f9._.js",
+      "static/chunks/9e883_@remix-run_router_dist_router_21f0ff5a.js",
+      "static/chunks/9e883_lodash_91f8d6fd._.js",
+      "static/chunks/9e883_recharts_es6_388c6e8c._.js",
+      "static/chunks/9e883_@radix-ui_2775425f._.js",
+      "static/chunks/9e883_@floating-ui_b44cf1b6._.js",
+      "static/chunks/9e883_918e5e8e._.js",
+      "static/chunks/frontend_src_App_tsx_d0f21bc3._.js"
     ]
   }
 }
