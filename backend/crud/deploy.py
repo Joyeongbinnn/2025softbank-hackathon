@@ -22,7 +22,7 @@ def get_deploys_by_service(db: Session, service_id: int, limit: int = 4):
 
 def get_today_user_deploys_count(db: Session, user_id: int) -> int:
     today = date.today()
-    return db.query(Deploy).join(Service, Deploy.service_id == Service.id).filter(
+    return db.query(Deploy).join(Service, Deploy.service_id == Service.service_id).filter(
         Service.user_id == user_id,
         Deploy.created_date >= today
     ).count()
