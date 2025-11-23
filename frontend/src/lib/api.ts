@@ -266,6 +266,23 @@ export const api = {
     return response.json()
   },
 
+  async postRedeploy(serviceId: number): Promise<any> {
+    const API_BASE = 'https://www.yoitang.cloud/api'
+    const url = `${API_BASE.replace(/\/$/, '')}/service/redeploy/${serviceId}`
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`Redeploy request failed: ${response.status} ${text}`)
+    }
+
+    return response.json()
+  },
+
   // GitHub APIs - Direct calls to GitHub API
   async getRepoInfo(repoUrl: string, pat?: string): Promise<{
     is_private: boolean
