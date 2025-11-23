@@ -247,6 +247,7 @@ export const api = {
     domain: string
     git_repo: string
     git_branch: string
+    git_pat?: string
   }): Promise<any> {
     const API_BASE = 'https://www.yoitang.cloud/api'
     const url = `${API_BASE.replace(/\/$/, '')}/service/auto_deploy`

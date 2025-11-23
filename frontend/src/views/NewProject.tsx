@@ -108,6 +108,7 @@ const NewProject = () => {
         domain: domainPrefix,
         git_repo: gitUrl,
         git_branch: branch,
+        git_pat: gitPat,
       })
 
       toast.success(
