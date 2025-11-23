@@ -7,15 +7,15 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
 interface DeploymentHistoryProps {
-  serviceId?: number;
+  serviceId?: number | null;
 }
 
-const DeploymentHistory = ({ serviceId = 1 }: DeploymentHistoryProps) => {
+const DeploymentHistory = ({ serviceId }: DeploymentHistoryProps) => {
   const { language } = useLanguage();
   
   const { data: deployments, isLoading, isError, error } = useQuery({
     queryKey: ['deployments', serviceId],
-    queryFn: () => api.getDeploymentsByServiceId(serviceId),
+    queryFn: () => api.getDeploymentsByServiceId(serviceId!),
     enabled: !!serviceId, // serviceId가 있을 때만 요청
   });
   
@@ -25,7 +25,18 @@ const DeploymentHistory = ({ serviceId = 1 }: DeploymentHistoryProps) => {
         <CardTitle className="text-lg">{t(language, 'deploymentHistory')}</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading && (
+        {!serviceId && (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-sm text-muted-foreground">
+              {language === 'ko' 
+                ? '확인하고 싶은 서비스를 클릭하세요' 
+                : language === 'en' 
+                  ? 'Please click on a service to view its deployment history' 
+                  : '確認したいサービスをクリックしてください'}
+            </p>
+          </div>
+        )}
+        {serviceId && isLoading && (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             <span className="ml-2 text-sm text-muted-foreground">
@@ -33,7 +44,7 @@ const DeploymentHistory = ({ serviceId = 1 }: DeploymentHistoryProps) => {
             </span>
           </div>
         )}
-        {isError && (
+        {serviceId && isError && (
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
               <p className="text-sm text-destructive mb-1">
@@ -45,14 +56,14 @@ const DeploymentHistory = ({ serviceId = 1 }: DeploymentHistoryProps) => {
             </div>
           </div>
         )}
-        {deployments && deployments.length === 0 && (
+        {serviceId && deployments && deployments.length === 0 && (
           <div className="flex items-center justify-center py-8">
             <p className="text-sm text-muted-foreground">
               {language === 'ko' ? '배포 이력이 없습니다.' : language === 'en' ? 'No deployment history found.' : 'デプロイ履歴がありません。'}
             </p>
           </div>
         )}
-        {deployments && deployments.length > 0 && (
+        {serviceId && deployments && deployments.length > 0 && (
           <div className="space-y-4">
             {deployments.map((deployment, index) => (
               <div key={deployment.deploy_id} className="flex items-start gap-3 relative">

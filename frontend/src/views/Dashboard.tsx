@@ -172,7 +172,7 @@ const Dashboard = () => {
             </Card>
 
             {/* Deployment History */}
-            {selectedServiceId && <DeploymentHistory serviceId={selectedServiceId} />}
+            <DeploymentHistory serviceId={selectedServiceId} />
           </div>
         </div>
       </div>
