@@ -50,6 +50,8 @@ export interface ServiceInfo {
   git_repo: string
   created_date: string
   updated_date: string
+  prefix?: string
+  namespace?: string
 }
 
 export interface DeploymentHistory {
