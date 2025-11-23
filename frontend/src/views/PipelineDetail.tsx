@@ -10,7 +10,7 @@ import { mockPipelineStages } from "@/utils/mockData";
 const PipelineDetail = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { serviceId } = useParams<{ serviceId: string }>();
+  const { deployId } = useParams<{ deployId: string }>();
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">

@@ -345,9 +345,9 @@ export const api = {
   },
 
   // Service APIs - Backend integration
-  async getServicesByUserId(userId: number): Promise<ServiceInfo[]> {
+  async getServicesByServiceId(serviceId: number): Promise<ServiceInfo> {
     const API_BASE = 'https://www.yoitang.cloud/api'
-    const url = `${API_BASE}/service/user/${userId}`
+    const url = `${API_BASE}/service/${serviceId}`
 
     const response = await fetch(url, {
       method: 'GET',
@@ -358,12 +358,12 @@ export const api = {
 
     if (!response.ok) {
       const text = await response.text()
-      throw new Error(`Failed to fetch services: ${response.status} ${text}`)
+      throw new Error(`Failed to fetch service: ${response.status} ${text}`)
     }
 
-    const data = await response.json()
+    const service = await response.json()
     // 백엔드에서 datetime을 ISO 문자열로 변환하여 반환하므로 그대로 사용
-    return data.map((service: any) => ({
+    return {
       service_id: service.service_id,
       user_id: service.user_id,
       name: service.name,
@@ -377,10 +377,32 @@ export const api = {
           ? service.updated_date 
           : new Date(service.updated_date).toISOString())
         : service.created_date,
-    }))
+    }
   },
 
   // Deployment APIs - Backend integration
+  async getLatestDeployByServiceId(serviceId: number): Promise<{ deploy_id: number }> {
+    const API_BASE = 'https://www.yoitang.cloud/api'
+    const url = `${API_BASE}/deploy/service/latest/${serviceId}`
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`Failed to fetch latest deployment: ${response.status} ${text}`)
+    }
+
+    const data = await response.json()
+    return {
+      deploy_id: data.deploy_id,
+    }
+  },
+
   async getDeploymentsByServiceId(serviceId: number): Promise<DeploymentHistory[]> {
     const API_BASE = 'https://www.yoitang.cloud/api'
     const url = `${API_BASE}/deploy/service/${serviceId}`
