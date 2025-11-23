@@ -6,6 +6,7 @@ import { useLanguage } from "@/lib/LanguageContext"
 import { t } from "@/lib/i18n"
 import { api } from "@/lib/api"
 import { useState } from "react"
+import { toast } from "sonner"
 import type { Environment, ServiceInfo } from "@/types"
 
 interface EnvironmentCardProps {
@@ -17,6 +18,7 @@ const EnvironmentCard = ({ serviceInfo, onClick }: EnvironmentCardProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRedeploying, setIsRedeploying] = useState(false);
   const prefix = serviceInfo.prefix ?? serviceInfo.name ?? serviceInfo.domain ?? "default";
   const namespace = serviceInfo.namespace ?? serviceInfo.domain ?? prefix;
   const metricsParams = new URLSearchParams({
@@ -180,9 +182,57 @@ const EnvironmentCard = ({ serviceInfo, onClick }: EnvironmentCardProps) => {
         </div>
 
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-          <Button size="sm" variant="outline" className="flex-1">
-            <RefreshCw className="h-3 w-3 mr-1" />
-            {t(language, 'redeploy')}
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="flex-1"
+            disabled={isRedeploying}
+            onClick={async (e) => {
+              e.stopPropagation();
+              try {
+                setIsRedeploying(true);
+                toast.loading(
+                  language === 'ko'
+                    ? '재배포를 시작합니다...'
+                    : language === 'en'
+                      ? 'Starting redeployment...'
+                      : '再デプロイを開始します...',
+                  { id: 'redeploy' }
+                );
+                await api.postRedeploy(serviceInfo.service_id);
+                toast.success(
+                  language === 'ko'
+                    ? '재배포가 시작되었습니다! 🎉'
+                    : language === 'en'
+                      ? 'Redeployment started! 🎉'
+                      : '再デプロイが開始されました! 🎉',
+                  { id: 'redeploy' }
+                );
+              } catch (error) {
+                toast.error(
+                  language === 'ko'
+                    ? `재배포 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
+                    : language === 'en'
+                      ? `Redeployment failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+                      : `再デプロイ失敗: ${error instanceof Error ? error.message : '不明なエラー'}`,
+                  { id: 'redeploy' }
+                );
+              } finally {
+                setIsRedeploying(false);
+              }
+            }}
+          >
+            {isRedeploying ? (
+              <>
+                <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                {language === 'ko' ? '재배포 중...' : language === 'en' ? 'Redeploying...' : '再デプロイ中...'}
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-3 w-3 mr-1" />
+                {t(language, 'redeploy')}
+              </>
+            )}
           </Button>
           <Button
             size="sm"
