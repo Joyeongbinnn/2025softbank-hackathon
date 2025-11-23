@@ -140,3 +140,25 @@ class JenkinsClient:
             "next_start": next_start,
             "more_data": more_data,
         }
+    
+    def get_build_result(self, build_number: int):
+        """
+        Jenkins 빌드 완료될 때까지 result 필드 대기
+        """
+        url = f"{self.base_url}/job/{self.job_name}/{build_number}/api/json"
+
+        while True:
+            resp = requests.get(
+                url,
+                auth=HTTPBasicAuth(self.username, self.token),
+                timeout=10,
+                verify=True
+            )
+            resp.raise_for_status()
+            data = resp.json()
+
+            result = data.get("result")
+            if result is not None:
+                return result
+
+            time.sleep(2)
