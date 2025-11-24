@@ -1,188 +1,135 @@
-# 🧡 yoitang — 스타트업을 위한 자동 배포 플랫폼
+<p align="center">
+  <img src="./docs/images/logo-yoitang.png" alt="Yoitang Auto Deploy Logo" width="120" />
+</p>
 
-> **"배포 버튼 한 번으로, 인프라까지 자동으로"**
+<h1 align="center">Yoitang Auto Deploy</h1>
 
-yoitang은 초기 스타트업·개인 개발자·해커톤 참가자를 위해 **Git 저장소 + AWS 정보 입력만으로 바로 배포 가능한 자동 DevOps 플랫폼**을 목표로 합니다.
+<p align="center">
+  <b>배포 버튼 한 번으로, 인프라까지 자동으로.</b><br/>
+  Git 주소와 간단한 설정만으로 AWS EC2 · Docker · NGINX · HTTPS까지 자동 구성해주는 스타트업 전용 자동 배포 플랫폼
+</p>
 
-### ✨ 핵심 철학
-개발자는 **개발에만 집중**, 요이땅(yoitang)이 **서버·CI/CD·HTTPS·도메인·보안을 자동 구축**합니다.
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-AWS-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white" />
+  <img src="https://img.shields.io/badge/CI-Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white" />
+  <img src="https://img.shields.io/badge/Kubernetes-k3s-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" />
+  <img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/Frontend-Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
+</p>
 
----
-
-## 🚀 핵심 가치
-
-| 🎯 문제 | ✅ 해결 방식 |
-|---------|-----------|
-| DevOps 경험 부족 → 배포 진입장벽 높음 | 완전 자동화된 배포 마법사 |
-| 인프라 세팅에 많은 시간 소모 | 10분 이내 프로덕션 배포 |
-| 운영 도중 장애 → 원인 모름 | 모니터링·로그·히스토리 제공 예정 |
-| 클라우드 비용 최적화 어려움 | 향후 Cost Analyzer 제공 예정 |
-
----
-
-## 📌 주요 기능
-
-| 기능 | 상태 | 설명 |
-|------|:----:|------|
-| AWS EC2 자동 세팅 | ✅ | Ubuntu + Docker + Nginx + HTTPS 자동 구성 |
-| Backend 컨테이너 배포 | ✅ | Django 기반 예제 + Gunicorn 구성 |
-| Frontend 컨테이너 배포 | ✅ | React / Next.js 기반 배포 |
-| PostgreSQL 구성 | ✅ | Docker-compose 기반 |
-| HTTPS & SSL | ✅ | Let's Encrypt 자동 적용 |
-| Jenkins 기반 CI/CD | 🔄 | 이미지 빌드 & 배포 파이프라인 |
-| 깃 연동 Auto Deployment | 🔄 | push → 자동 빌드 & 배포 |
-| 모니터링 & 알림 | 🚧 | Grafana + Slack 예정 |
-| SaaS 플랫폼화 | 🚧 | 누구나 배포 계정 생성 가능 |
+<p align="center">
+  <img src="./docs/images/hero-main.png" alt="Yoitang Auto Deploy Main UI" />
+</p>
 
 ---
 
-## 🏗️ 시스템 아키텍처
+## 📌 소개 (Introduction)
 
-```
-┌─────────────────────────────┐
-│    User Repository          │
-│  (GitHub / GitLab / etc.)   │
-└──────────────┬──────────────┘
-               │
-               │ Web Input (Repo + AWS Keys)
-               ▼
-┌───────────────────────────────────────┐
-│          🧡 yoitang Platform          │
-├───────────────────────────────────────┤
-│  Backend (Django) + Frontend (React)  │
-│  Pipeline Wizard (CI/CD Generator)    │
-│  Deployment Orchestrator              │
-└──────────────┬────────────────────────┘
-               │
-               ▼
-┌───────────────────────────────────────┐
-│       ☁️ AWS Infrastructure            │
-├───────────────────────────────────────┤
-│  EC2 + Docker + Nginx + HTTPS + PgSQL │
-│  Jenkins + Auto Build & Deploy        │
-└───────────────────────────────────────┘
-```
+**Yoitang Auto Deploy** 는 스타트업과 작은 개발팀을 위해 만든 **원클릭 자동 배포 플랫폼**입니다.
+
+개발자는 단지 다음 정보만 입력합니다.
+
+- Git 저장소 URL
+- 배포 브랜치
+- (필요 시) GitHub PAT
+- 서비스 이름 / 팀 이름
+- 도메인 prefix
+
+이후의 과정은 플랫폼이 대신 처리합니다.
+
+- EC2 인스턴스 3대로 구성된 **k3s 멀티 컨트롤 플레인 클러스터**에 배포
+- Jenkins + Kaniko로 컨테이너 이미지 빌드 및 AWS ECR Push
+- NGINX Ingress + cert-manager로 HTTPS 자동 발급/적용
+- Prometheus + Grafana 기반 모니터링 및 리소스/비용 대시보드 제공
 
 ---
 
-## ⚙️ 기술 스택
+## ✨ 핵심 기능 (Features)
 
-| 분류 | 기술 |
-|------|------|
-| **Frontend** | React, Next.js, TypeScript |
-| **Backend** | Django + Gunicorn, Python |
-| **Database** | PostgreSQL |
-| **CI/CD** | Jenkins, Docker, Docker Hub |
-| **Infrastructure** | AWS EC2, Nginx, HTTPS (Let's Encrypt) |
-| **OS** | Ubuntu 20.04 |
+<p align="center">
+  <img src="./docs/images/feature-cards.png" alt="Features" />
+</p>
+<p align="center">
+  <img src="./docs/images/feature-cards2.png" alt="Features" />
+</p>
 
----
-
-## 📂 프로젝트 구조
-
-```
-📦 2025softbank-hackathon
-├─ 📁 frontend/              # Next.js 웹 UI
-│  ├─ 📁 src/
-│  ├─ 📁 components/
-│  ├─ 📁 public/
-│  └─ package.json
-│
-├─ 📁 backend/               # Django API 서버
-│  ├─ 📁 api/
-│  ├─ 📁 config/
-│  ├─ manage.py
-│  └─ requirements.txt
-│
-├─ 📁 infra/                 # Docker Compose & 설정
-│  ├─ docker-compose.yaml
-│  ├─ 📁 nginx/
-│  ├─ backend.env
-│  └─ frontend.env
-│
-├─ Jenkinsfile
-└─ README.md
-```
+- 🪄 **원클릭 배포**
+  - Git URL, 브랜치, PAT, 도메인만 입력하면 배포 파이프라인이 자동 생성됩니다.
+- ⚙️ **자동 인프라 구성**
+  - EC2 3대에 k3s 멀티 컨트롤 플레인을 구성해 고가용성을 확보합니다.
+- 🔑 **Private Repo 지원**
+  - GitHub PAT을 이용해 Private Repository도 안전하게 빌드합니다.
+- 🔁 **파이프라인 단계별 로그**
+  - Git Clone, Build & Test, Docker Build & Push, k3s Deploy, Health Check 로그를 UI에서 확인할 수 있습니다.
+- 📊 **서비스 메트릭 및 비용 대시보드**
+  - CPU/메모리 사용량, 최근 배포 이력, 일간 예상 비용 등을 시각화합니다.
+- 🔐 **HTTPS 자동 설정**
+  - 도메인 prefix만 입력하면 Let’s Encrypt 인증서를 자동 발급·적용합니다.
 
 ---
 
-## 🚀 빠른 시작 가이드
+## 🖥 UI 미리보기 (Preview)
 
-### 1️⃣ EC2 생성 & 도커 설치
+### 1. 새 서비스 만들기 플로우
 
-```bash
-sudo apt update && sudo apt install -y docker.io docker-compose
-```
-
-### 2️⃣ 저장소 클론 후 배포
-
-```bash
-git clone https://github.com/Joyeongbinnn/2025softbank-hackathon.git
-cd 2025softbank-hackathon/infra
-docker compose up -d
-```
-
-### 3️⃣ 서비스 접속
-
-| 서비스 | URL |
-|--------|-----|
-| 🌐 **Web** | https://www.yoitang.cloud |
-| 🔌 **API** | https://www.yoitang.cloud/api |
-| 🔧 **Jenkins** | https://www.yoitang.cloud/jenkins |
+| 기본 정보 | Git 설정 | 요약 & 배포 |
+| --- | --- | --- |
+| ![](./docs/images/create-basic.png) | ![](./docs/images/create-git.png) | ![](./docs/images/create-summary.png) |
 
 ---
 
-## 🔥 로드맵
+### 2. 서비스 대시보드
 
-| Phase | 목표 | 상태 |
-|-------|------|------|
-| **Phase 1** | 자동 배포 + HTTPS | ✅ 완료 |
-| **Phase 2** | Git Web Hook 자동 재배포 | 🔄 진행중 |
-| **Phase 3** | 로깅 + 모니터링 + 알림 | 🚧 예정 |
-| **Phase 4** | SaaS Admin Dashboard | 🚧 예정 |
-| **Phase 5** | Terraform 기반 Resource Automation | 🚧 예정 |
-| **Phase 6** | Multi Cloud 지원 | 🚧 예정 |
+| 전체 대시보드 | 파이프라인 상세 |
+| --- | --- |
+| ![](./docs/images/dashboard.png) | ![](./docs/images/pipeline.png) |
 
 ---
 
-## 🙋 팀 & 역할
+### 3. 메트릭 대시보드
 
-| 이름 | 역할 | 스킬 |
-|------|------|------|
-| 조영빈 | PM & Infra Lead | AWS, Docker, CI/CD, Security |
-
----
-
-## 🤝 Contribution Guide
-
-- 🔀 Fork & PR 방식으로 기여
-- 📝 Issue Template 활용
-- 📏 코드 컨벤션 준수
-- 🔐 보안 관련 논의는 Private 채널에서 진행
+<p align="center">
+  <img src="./docs/images/metrics.png" alt="Metrics Dashboard" />
+</p>
 
 ---
 
-## 🛡️ Security Policy
+## 🏗 전체 아키텍처 (Architecture)
 
-- 🔑 Credentials는 \.env\로 관리
-- ❌ 절대 Git에 직접 포함 금지
-- 🔒 Cloud Key는 IAM 최소 권한 원칙 적용
+### 인프라 개요
 
----
+- **EC2 노드**
+  - `k3s-server-1` : k3s control-plane
+  - `k3s-server-2` : k3s control-plane
+  - `k3s-server-3` : k3s control-plane (+ worker 역할 겸용 가능)
+- **CI 노드 (별도 EC2)**
+  - Docker Compose로 **Jenkins, Backend API, Postgres, Nginx** 를 실행
+  - Jenkins에서 Kaniko 컨테이너를 이용해 ECR로 이미지 푸시
 
-## 📬 Contact & Links
-
-| 항목 | 정보 |
-|------|------|
-| 📧 **Email** | your-email@example.com |
-| 💬 **Slack** | 팀 채널 |
-| 🌐 **Deploy** | https://www.yoitang.cloud |
-| 🐙 **GitHub** | [Joyeongbinnn/2025softbank-hackathon](https://github.com/Joyeongbinnn/2025softbank-hackathon) |
-
----
-
-<div align="center">
-
-**Made with 🧡 for Startups & Developers**
-
-</div>
+```text
+Developer
+   |
+   | 1. Git URL / 브랜치 / PAT / 도메인 prefix 입력
+   v
+Frontend (Next.js)
+   |
+   | 2. REST 호출
+   v
+Backend API (FastAPI)
+   |
+   | 3. Jenkins REST API 호출 (Job Trigger)
+   v
+Jenkins (CI, Docker Compose)
+   |
+   | 4. Kaniko로 Docker 이미지 빌드 & ECR Push
+   v
+AWS ECR (Image Registry)
+   |
+   | 5. k3s가 새 이미지 Pull
+   v
+k3s Cluster (Multi Control-Plane, 3 EC2)
+   ├── Deployment / Service
+   ├── Nginx Ingress (yoitang.cloud)
+   ├── cert-manager (Let's Encrypt)
+   ├── kubecost
+   └── Prometheus + Grafana
