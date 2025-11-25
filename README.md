@@ -1,4 +1,5 @@
 > 🏆 2025 SoftBank Global Hackathon (Korea) — 2차 예선 **최우수상 수상작**
+
 https://softbank-hackathon-2025-vn9szl4.gamma.site/
 
 
